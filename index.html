@@ -144,7 +144,7 @@
   body.tools-collapsed nav#tools { display:none !important; }
 }
 
-</style><header><b>◈ TRIZ BCI Board · v0.6</b><select id="projects" title="Проект"></select><button id="newProject">＋ Доска</button><button id="renameProject">Переименовать</button><button id="deleteProject">Удалить доску</button><span id="status">Локальный режим</span><button id="chatToggle">Чат</button><button id="logout">Выход</button></header><nav id="tools" aria-label="Панель инструментов" title="На телефоне прокручивайте панель инструментов влево и вправо"><button data-tool="select">↖ Выбор</button><button data-tool="pan">✋ Полотно</button><button data-tool="pen">✎ Перо</button><button data-tool="text">Текст</button><button data-tool="node">Блок карты</button><button id="treeRoot">＋ Дерево</button><button id="treeChild">＋ Ветвь</button><button id="treeLayout">Разложить дерево</button><button id="treeExample">Пример ЭЭГ</button><button data-tool="link">Связь</button><button data-tool="rect">□</button><button data-tool="ellipse">○</button><button data-tool="line">╱ Прямая</button><button data-tool="arrow">↗ Стрелка</button><button data-tool="doublearrow">↔ Двойная</button><button data-tool="curve">∿ Кривая</button><button data-tool="elbow">┐ Угловая</button><button data-tool="triangle">△</button><button data-tool="diamond">◇</button><button data-tool="hexagon">⬡</button><button data-tool="star">☆</button><select id="lineStyle" title="Тип линии"><option value="solid">Сплошная</option><option value="dash">Штриховая</option><option value="dot">Пунктирная</option><option value="dashdot">Штрихпунктирная</option></select><button data-tool="erase">Ластик</button><input id="color" type="color" value="#2563eb" title="Цвет"><input id="width" type="number" min="1" max="40" value="3" style="width:60px" title="Толщина"><label title="Размер шрифта">Шрифт <input id="fontSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="image">Фото</button><input id="file" type="file" accept="image/*" hidden><button id="undo">↶</button><button id="redo">↷</button><button id="minus">−</button><button id="plus">+</button><button id="home">100%</button><select id="pattern"><option value="dots">Точки</option><option value="grid">Клетка</option><option value="cube">Кубы</option><option value="hex">Соты</option><option value="tri">Треугольники</option><option value="none">Чистая</option></select><select id="material"><option value="#4c98a8">Бирюзовая</option><option value="#fafafa">Белая доска</option><option value="#292d35">Графит</option><option value="#fff2d5">Бумага</option><option value="#174b80">Чертёж</option><option value="#c7a47b">Крафт</option><option value="#23483c">Меловая</option></select><button id="export">SVG</button><button id="backup">JSON</button><button id="restore">Импорт</button><input id="importFile" type="file" accept=".json" hidden></nav><button id="mobileToolsToggle" type="button" aria-controls="tools" aria-expanded="true">☰ Инструменты</button><main><div id="stage"><svg id="svg" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="pat" patternUnits="userSpaceOnUse" width="24" height="24"></pattern></defs><rect id="bg" width="100%" height="100%"/><rect id="grid" width="100%" height="100%" fill="url(#pat)"/><g id="world"></g></svg><div id="inlineEditor"><textarea id="inlineText" placeholder="Введите текст…"></textarea><footer><label>Размер <input id="editorSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="inlineCancel">Отмена</button><button id="inlineOK">Готово</button></footer></div></div><aside id="chat" hidden style="display:none"><b>Чат · локальный прототип</b><input id="name" placeholder="Ваше имя"><div id="messages"></div><form id="send"><input id="msg" placeholder="Сообщение" required style="width:100%"><button>Отправить</button></form><button id="notify">Разрешить уведомления</button></aside></main><div id="gate"><form id="login"><h2>TRIZ BCI Board</h2><p>Вход участника</p><input id="email" type="email" autocomplete="username" placeholder="Электронная почта" required><input id="password" type="password" autocomplete="current-password" placeholder="Пароль Firebase" required><button>Войти</button><p id="error"></p></form></div><dialog id="boardDialog"><form id="dialogForm"><b id="dialogTitle"></b><input id="dialogInput" autocomplete="off"><footer><button type="button" id="dialogCancel">Отмена</button><button type="submit">Готово</button></footer></form></dialog><div id="toast" hidden role="status"></div><script type="module">
+</style><header><b>◈ TRIZ BCI Board · v0.6</b><select id="projects" title="Проект"></select><button id="newProject">＋ Доска</button><button id="renameProject">Переименовать</button><button id="deleteProject">Удалить доску</button><span id="status">Локальный режим</span><button id="chatToggle">Чат</button><button id="soundToggle" type="button" title="Звуковые сигналы на этом устройстве">🔕 Звук выключен</button><button id="logout">Выход</button></header><nav id="tools" aria-label="Панель инструментов" title="На телефоне прокручивайте панель инструментов влево и вправо"><button data-tool="select">↖ Выбор</button><button data-tool="pan">✋ Полотно</button><button data-tool="pen">✎ Перо</button><button data-tool="text">Текст</button><button data-tool="node">Блок карты</button><button id="treeRoot">＋ Дерево</button><button id="treeChild">＋ Ветвь</button><button id="treeLayout">Разложить дерево</button><button id="treeExample">Пример ЭЭГ</button><button data-tool="link">Связь</button><button data-tool="rect">□</button><button data-tool="ellipse">○</button><button data-tool="line">╱ Прямая</button><button data-tool="arrow">↗ Стрелка</button><button data-tool="doublearrow">↔ Двойная</button><button data-tool="curve">∿ Кривая</button><button data-tool="elbow">┐ Угловая</button><button data-tool="triangle">△</button><button data-tool="diamond">◇</button><button data-tool="hexagon">⬡</button><button data-tool="star">☆</button><select id="lineStyle" title="Тип линии"><option value="solid">Сплошная</option><option value="dash">Штриховая</option><option value="dot">Пунктирная</option><option value="dashdot">Штрихпунктирная</option></select><button data-tool="erase">Ластик</button><input id="color" type="color" value="#2563eb" title="Цвет"><input id="width" type="number" min="1" max="40" value="3" style="width:60px" title="Толщина"><label title="Размер шрифта">Шрифт <input id="fontSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="image">Фото</button><input id="file" type="file" accept="image/*" hidden><button id="undo">↶</button><button id="redo">↷</button><button id="minus">−</button><button id="plus">+</button><button id="home">100%</button><select id="pattern"><option value="dots">Точки</option><option value="grid">Клетка</option><option value="cube">Кубы</option><option value="hex">Соты</option><option value="tri">Треугольники</option><option value="none">Чистая</option></select><select id="material"><option value="#4c98a8">Бирюзовая</option><option value="#fafafa">Белая доска</option><option value="#292d35">Графит</option><option value="#fff2d5">Бумага</option><option value="#174b80">Чертёж</option><option value="#c7a47b">Крафт</option><option value="#23483c">Меловая</option></select><button id="export">SVG</button><button id="backup">JSON</button><button id="restore">Импорт</button><input id="importFile" type="file" accept=".json" hidden></nav><button id="mobileToolsToggle" type="button" aria-controls="tools" aria-expanded="true">☰ Инструменты</button><main><div id="stage"><svg id="svg" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="pat" patternUnits="userSpaceOnUse" width="24" height="24"></pattern></defs><rect id="bg" width="100%" height="100%"/><rect id="grid" width="100%" height="100%" fill="url(#pat)"/><g id="world"></g></svg><div id="inlineEditor"><textarea id="inlineText" placeholder="Введите текст…"></textarea><footer><label>Размер <input id="editorSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="inlineCancel">Отмена</button><button id="inlineOK">Готово</button></footer></div></div><aside id="chat" hidden style="display:none"><b>Чат · локальный прототип</b><input id="name" placeholder="Ваше имя"><div id="messages"></div><form id="send"><input id="msg" placeholder="Сообщение" required style="width:100%"><button>Отправить</button></form><button id="notify">Разрешить уведомления</button></aside></main><div id="gate"><form id="login"><h2>TRIZ BCI Board</h2><p>Вход участника</p><input id="email" type="email" autocomplete="username" placeholder="Электронная почта" required><input id="password" type="password" autocomplete="current-password" placeholder="Пароль Firebase" required><button>Войти</button><p id="error"></p></form></div><dialog id="boardDialog"><form id="dialogForm"><b id="dialogTitle"></b><input id="dialogInput" autocomplete="off"><footer><button type="button" id="dialogCancel">Отмена</button><button type="submit">Готово</button></footer></form></dialog><div id="toast" hidden role="status"></div><script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {
@@ -182,6 +182,61 @@ let stopBoards = null, stopBoard = null, stopMessages = null;
 let cloudSaveTimer = null, cloudMessages = [], messageSnapshotReady=false;
 const memory=new Map(); let persistent=true; const store={getItem(k){try{return window.localStorage.getItem(k)}catch{persistent=false;return memory.get(k)??null}},setItem(k,v){try{window.localStorage.setItem(k,v)}catch(e){if(e.name==='QuotaExceededError')throw e;persistent=false;memory.set(k,String(v))}},removeItem(k){try{window.localStorage.removeItem(k)}catch{persistent=false;memory.delete(k)}}};
 const $=id=>document.getElementById(id), ns='http://www.w3.org/2000/svg', svg=$('svg'), world=$('world');
+// Звук включается отдельно на каждом устройстве после нажатия пользователя.
+let soundEnabled=store.getItem('triz-sound-enabled')==='1';
+let soundActivated=false;
+let soundContext=null;
+let boardSnapshotReady=false;
+let lastBoardSnapshotValue=null;
+const ownBoardValues=new Set();
+function updateSoundButton(){
+  const b=$('soundToggle');
+  if(b)b.textContent=soundEnabled?(soundActivated?'🔔 Звук включён':'🔔 Активировать звук'):'🔕 Звук выключен';
+}
+function playSoundAlert(kind='board'){
+  if(!soundEnabled)return;
+  try{
+    const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextClass)return;
+    if(!soundContext)soundContext=new AudioContextClass();
+    if(soundContext.state!=='running')return;
+    const now=soundContext.currentTime;
+    const frequencies=kind==='message'?[1046,784]:[784];
+    frequencies.forEach((frequency,index)=>{
+      const oscillator=soundContext.createOscillator();
+      const gain=soundContext.createGain();
+      const start=now+index*0.16;
+      oscillator.type='sine';
+      oscillator.frequency.setValueAtTime(frequency,start);
+      gain.gain.setValueAtTime(0.0001,start);
+      gain.gain.exponentialRampToValueAtTime(0.12,start+0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001,start+0.13);
+      oscillator.connect(gain);
+      gain.connect(soundContext.destination);
+      oscillator.start(start);
+      oscillator.stop(start+0.14);
+    });
+  }catch(err){console.warn('Sound alert unavailable',err);}
+}
+$('soundToggle').onclick=async()=>{
+  try{
+    const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextClass){toast('Этот браузер не поддерживает звуковые сигналы');return;}
+    if(!soundContext)soundContext=new AudioContextClass();
+    await soundContext.resume();
+    if(!soundActivated){
+      soundActivated=true;
+      soundEnabled=true;
+    }else{
+      soundEnabled=!soundEnabled;
+    }
+    store.setItem('triz-sound-enabled',soundEnabled?'1':'0');
+    updateSoundButton();
+    if(soundEnabled)playSoundAlert('message');
+  }catch(err){toast('Не удалось включить звук: '+err.message);}
+};
+updateSoundButton();
+
 const mobileToolsToggle=$('mobileToolsToggle');
 if(mobileToolsToggle){
   mobileToolsToggle.addEventListener('click',()=>{
@@ -206,6 +261,8 @@ $('pattern').value=saved.pattern||'dots';$('material').value=saved.material||'#f
         const cloudState={data:state.data,pattern:state.pattern,material:state.material};
         const value=JSON.stringify(cloudState);
         if(value.length>800000){toast('Доска слишком большая для текущего лимита Firestore. Для изображений подключим Firebase Storage.');return;}
+        ownBoardValues.add(value);
+        if(ownBoardValues.size>20)ownBoardValues.delete(ownBoardValues.values().next().value);
         await setDoc(doc(db,'objects',active),{value});
         await setDoc(doc(db,'boards',active),{
           name:(projects.find(p=>p.id===active)||{}).name||'Доска',
@@ -332,6 +389,8 @@ $('send').onsubmit=async e=>{
   }catch(err){toast('Не удалось отправить сообщение: '+(err.code||err.message));}
 };$('notify').onclick=async()=>{if(!('Notification'in window)){toast('Браузер не поддерживает уведомления');return}try{let p=await Notification.requestPermission();toast(p==='granted'?'Уведомления разрешены. Для доставки при полностью закрытом приложении потребуется Web Push (FCM)':'Уведомления не разрешены')}catch{toast('Для уведомлений нужен поддерживаемый браузер и HTTPS')}};function startBoardSync(){
   if(stopBoard){stopBoard();stopBoard=null;}
+  boardSnapshotReady=false;
+  lastBoardSnapshotValue=null;
   if(!cloudEnabled||!cloudUser)return;
   stopBoard=onSnapshot(doc(db,'objects',active),snap=>{
     if(!snap.exists()){
@@ -341,7 +400,14 @@ $('send').onsubmit=async e=>{
       return;
     }
     try{
-      const state=JSON.parse(snap.data().value||'{}');
+      const incomingValue=snap.data().value||'{}';
+      if(boardSnapshotReady && incomingValue!==lastBoardSnapshotValue){
+        if(ownBoardValues.has(incomingValue))ownBoardValues.delete(incomingValue);
+        else playSoundAlert('board');
+      }
+      lastBoardSnapshotValue=incomingValue;
+      boardSnapshotReady=true;
+      const state=JSON.parse(incomingValue);
       if(drag||editing)return;
       cloudApplying=true;
       data=Array.isArray(state.data)?state.data:[];
@@ -368,6 +434,7 @@ function startMessageSync(){
         if(change.type!=='added')continue;
         const m=parsed.find(x=>x.id===change.doc.id);
         if(!m||m.uid===cloudUser?.uid||m.boardId!==active)continue;
+        playSoundAlert('message');
         if('Notification'in window&&Notification.permission==='granted'){
           try{
             const n=new Notification('Новое сообщение · '+(m.name||'Участник'),{
