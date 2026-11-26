@@ -417,7 +417,51 @@ function persistProjectsLocal(){
     const p=projects.find(p=>p.id===active);
     if(p)setDoc(doc(db,'boards',active),{name:p.name,pattern:$('pattern').value,material:$('material').value,archived:false},{merge:true}).catch(err=>toast('Не удалось сохранить название доски: '+err.message));
   }
-}function switchProject(next,keep=true){if(drag)return;finishEditor(false);if(keep)save();active=next;key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;chatKey=active==='legacy'?'triz-chat':'triz-chat-v2-'+active;let s=load();data=s.data||[];restoreCamera();$('pattern').value=s.pattern||'dots';$('material').value=s.material||'#fafafa';history=[];future=[];selected=null;linkStart=null; $('msg').value='';persistProjects();render();showChat();if(cloudEnabled)startBoardSync()}$('projects').onchange=()=>switchProject($('projects').value);$('newProject').onclick=async()=>{let name=await ask('Название новой доски','');if(!name?.trim())return;let p={id:id(),name:name.trim()};projects.push(p);switchProject(p.id)};$('renameProject').onclick=async()=>{let p=projects.find(p=>p.id===active),name=await ask('Название доски',p.name);if(name?.trim()){p.name=name.trim();persistProjects()}};$('deleteProject').onclick=async()=>{
+}function switchProject(next,keep=true){if(drag)return;finishEditor(false);if(keep)save();active=next;key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;chatKey=active==='legacy'?'triz-chat':'triz-chat-v2-'+active;let s=load();data=s.data||[];restoreCamera();$('pattern').value=s.pattern||'dots';$('material').value=s.material||'#fafafa';history=[];future=[];selected=null;linkStart=null; $('msg').value='';persistProjects();render();showChat();if(cloudEnabled)startBoardSync()}$('projects').onchange=()=>switchProject($('projects').value);
+$('newProject').onclick=async()=>{
+  const name=await ask('Название новой доски','Новая доска');
+  if(!name?.trim())return;
+  if(!cloudEnabled||!cloudUser){
+    toast('Для создания общей облачной доски сначала войдите в аккаунт');
+    return;
+  }
+  try{
+    // Сначала сохраняем текущую доску, затем создаём два новых независимых документа.
+    save();
+    const boardId=(crypto.randomUUID?crypto.randomUUID():id()).replaceAll('/','-');
+    const board={id:boardId,name:name.trim()};
+    await setDoc(doc(db,'boards',boardId),{
+      name:board.name,
+      pattern:'dots',
+      material:'#fafafa',
+      archived:false
+    });
+    const initialState={data:[],pattern:'dots',material:'#fafafa'};
+    await setDoc(doc(db,'objects',boardId),{value:JSON.stringify(initialState)});
+    projects.push(board);
+    active=boardId;
+    key='triz-board-v2-'+active;
+    chatKey='triz-chat-v2-'+active;
+    data=[];
+    cam={x:0,y:0,z:1};
+    // У новой доски собственная камера; прежний масштаб другой доски не переносится.
+    store.removeItem(cameraKey());
+    restoreCamera();
+    $('pattern').value='dots';
+    $('material').value='#fafafa';
+    history=[];future=[];selected=null;linkStart=null;
+    $('msg').value='';
+    store.setItem(key,JSON.stringify({...initialState,cam}));
+    persistProjects();
+    render();
+    showChat();
+    startBoardSync();
+    toast('Создана отдельная пустая доска: '+board.name);
+  }catch(err){
+    console.error('Board creation failed',err);
+    toast('Не удалось создать доску: '+(err.code||err.message));
+  }
+};$('renameProject').onclick=async()=>{let p=projects.find(p=>p.id===active),name=await ask('Название доски',p.name);if(name?.trim()){p.name=name.trim();persistProjects()}};$('deleteProject').onclick=async()=>{
   if(projects.length===1){toast('Оставьте хотя бы одну доску');return;}
   if(!await ask('Архивировать эту доску?'))return;
   try{if(cloudEnabled)await updateDoc(doc(db,'boards',active),{archived:true});}catch(err){toast('Не удалось архивировать доску: '+err.message);return;}
