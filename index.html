@@ -164,6 +164,16 @@ const firebaseConfig = {
   messagingSenderId: "565924919299",
   appId: "1:565924919299:web:781d21e8a5eea89f5b7636"
 };
+window.addEventListener('error',event=>{
+  const errorBox=document.getElementById('error');
+  if(errorBox) errorBox.textContent='Ошибка приложения: '+(event.message||'неизвестная ошибка');
+  console.error(event.error||event.message);
+});
+window.addEventListener('unhandledrejection',event=>{
+  const errorBox=document.getElementById('error');
+  if(errorBox) errorBox.textContent='Ошибка подключения: '+(event.reason?.message||String(event.reason));
+  console.error(event.reason);
+});
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
@@ -171,13 +181,15 @@ let cloudUser = null, cloudEnabled = false, cloudApplying = false;
 let stopBoards = null, stopBoard = null, stopMessages = null;
 let cloudSaveTimer = null, cloudMessages = [], messageSnapshotReady=false;
 const memory=new Map(); let persistent=true; const store={getItem(k){try{return window.localStorage.getItem(k)}catch{persistent=false;return memory.get(k)??null}},setItem(k,v){try{window.localStorage.setItem(k,v)}catch(e){if(e.name==='QuotaExceededError')throw e;persistent=false;memory.set(k,String(v))}},removeItem(k){try{window.localStorage.removeItem(k)}catch{persistent=false;memory.delete(k)}}};
+const $=id=>document.getElementById(id), ns='http://www.w3.org/2000/svg', svg=$('svg'), world=$('world');
 const mobileToolsToggle=$('mobileToolsToggle');
-mobileToolsToggle.addEventListener('click',()=>{
-  const collapsed=document.body.classList.toggle('tools-collapsed');
-  mobileToolsToggle.textContent=collapsed?'☰ Показать инструменты':'Скрыть инструменты';
-  mobileToolsToggle.setAttribute('aria-expanded',String(!collapsed));
-});
-const $=id=>document.getElementById(id), ns='http://www.w3.org/2000/svg', svg=$('svg'), world=$('world');let data=[],history=[],future=[],tool='select',cam={x:0,y:0,z:1},drag=null,linkStart=null,selected=null;const indexKey='triz-projects-v2';let projects;try{projects=JSON.parse(store.getItem(indexKey))}catch{}if(!Array.isArray(projects)||!projects.length)projects=[{id:'legacy',name:'ТРИЗ BCI'}];let active=store.getItem('triz-active-v2');if(!projects.some(p=>p.id===active))active=projects[0].id;let key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;function load(){try{return JSON.parse(store.getItem(key))||{}}catch{return {}}}let saved=load();data=saved.data||[];cam=saved.cam||cam;
+if(mobileToolsToggle){
+  mobileToolsToggle.addEventListener('click',()=>{
+    const collapsed=document.body.classList.toggle('tools-collapsed');
+    mobileToolsToggle.textContent=collapsed?'☰ Показать инструменты':'Скрыть инструменты';
+    mobileToolsToggle.setAttribute('aria-expanded',String(!collapsed));
+  });
+}let data=[],history=[],future=[],tool='select',cam={x:0,y:0,z:1},drag=null,linkStart=null,selected=null;const indexKey='triz-projects-v2';let projects;try{projects=JSON.parse(store.getItem(indexKey))}catch{}if(!Array.isArray(projects)||!projects.length)projects=[{id:'legacy',name:'ТРИЗ BCI'}];let active=store.getItem('triz-active-v2');if(!projects.some(p=>p.id===active))active=projects[0].id;let key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;function load(){try{return JSON.parse(store.getItem(key))||{}}catch{return {}}}let saved=load();data=saved.data||[];cam=saved.cam||cam;
 function cameraKey(){return 'triz-camera-v1-'+(cloudUser?.uid||'guest')+'-'+active}
 function restoreCamera(){try{const c=JSON.parse(store.getItem(cameraKey())||'null');cam=c&&Number.isFinite(c.x)&&Number.isFinite(c.y)&&Number.isFinite(c.z)?c:{x:0,y:0,z:1}}catch{cam={x:0,y:0,z:1}}}
 $('pattern').value=saved.pattern||'dots';$('material').value=saved.material||'#fafafa';function save(){
@@ -275,9 +287,12 @@ function zoom(f,x=svg.clientWidth/2,y=svg.clientHeight/2){let z=Math.max(.03,Mat
   }catch(err){
     console.error('Firebase sign-in failed:',err);
     const messages={
-      'auth/invalid-credential':'Неверная почта или пароль.',
-      'auth/user-not-found':'Пользователь с такой почтой не найден в Firebase Authentication.',
+      'auth/invalid-credential':'Неверная почта или пароль. Проверь адрес и пароль в Firebase Authentication → Users.',
+      'auth/user-not-found':'Такой адрес электронной почты не зарегистрирован в Firebase Authentication → Users.',
       'auth/wrong-password':'Неверный пароль.',
+      'auth/invalid-email':'Проверь формат электронной почты.',
+      'auth/operation-not-allowed':'В Firebase не включён способ входа Email/Password.',
+      'auth/weak-password':'Пароль не соответствует требованиям Firebase.',
       'auth/too-many-requests':'Слишком много попыток. Подожди и попробуй снова.',
       'auth/unauthorized-domain':'Домен GitHub Pages не добавлен в Authorized domains Firebase Authentication.',
       'auth/network-request-failed':'Ошибка сети при обращении к Firebase.'
