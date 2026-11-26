@@ -253,28 +253,41 @@ if(mobileToolsToggle){
 function cameraKey(){return 'triz-camera-v1-'+(cloudUser?.uid||'guest')+'-'+active}
 function restoreCamera(){try{const c=JSON.parse(store.getItem(cameraKey())||'null');cam=c&&Number.isFinite(c.x)&&Number.isFinite(c.y)&&Number.isFinite(c.z)?c:{x:0,y:0,z:1}}catch{cam={x:0,y:0,z:1}}}
 $('pattern').value=saved.pattern||'dots';$('material').value=saved.material||'#fafafa';function save(){
-  const state={data,cam,pattern:$('pattern').value,material:$('material').value};
+  // Фиксируем ID и ключ именно той доски, которую сохраняем.
+  // Иначе отложенное сохранение после переключения/создания доски
+  // могло записать содержимое предыдущей доски в новую.
+  const saveBoardId=active;
+  const saveKey=key;
+  const saveCameraKey=cameraKey();
+  const savePattern=$('pattern').value;
+  const saveMaterial=$('material').value;
+  const state={data:JSON.parse(JSON.stringify(data)),cam:{...cam},pattern:savePattern,material:saveMaterial};
   try{
-    store.setItem(key,JSON.stringify(state));
-    store.setItem(cameraKey(),JSON.stringify(cam));
+    store.setItem(saveKey,JSON.stringify(state));
+    store.setItem(saveCameraKey,JSON.stringify(cam));
     $('status').textContent=persistent?'Локально сохранено':'Временный режим: экспортируйте JSON'
   }catch{$('status').textContent='Ошибка локального сохранения'}
   if(cloudEnabled && cloudUser && !cloudApplying){
+    const saveUser=cloudUser;
     clearTimeout(cloudSaveTimer);
     cloudSaveTimer=setTimeout(async()=>{
       try{
+        // Не отправляем отложенную запись, если пользователь уже вышел
+        // или сменился аккаунт.
+        if(!cloudUser || cloudUser.uid!==saveUser.uid)return;
         const cloudState={data:state.data,pattern:state.pattern,material:state.material};
         const value=JSON.stringify(cloudState);
         if(value.length>800000){toast('Доска слишком большая для текущего лимита Firestore. Для изображений подключим Firebase Storage.');return;}
         ownBoardValues.add(value);
         if(ownBoardValues.size>20)ownBoardValues.delete(ownBoardValues.values().next().value);
-        await setDoc(doc(db,'objects',active),{value});
-        await setDoc(doc(db,'boards',active),{
-          name:(projects.find(p=>p.id===active)||{}).name||'Доска',
-          pattern:$('pattern').value, material:$('material').value, archived:false
+        await setDoc(doc(db,'objects',saveBoardId),{value});
+        const boardName=(projects.find(p=>p.id===saveBoardId)||{}).name||'Доска';
+        await setDoc(doc(db,'boards',saveBoardId),{
+          name:boardName,
+          pattern:savePattern, material:saveMaterial, archived:false
         },{merge:true});
-        $('status').textContent='☁ Сохранено в облако';
-      }catch(err){console.error(err);$('status').textContent='Ошибка облачного сохранения';toast('Не удалось сохранить в облако: '+(err.code||err.message));}
+        if(active===saveBoardId)$('status').textContent='☁ Сохранено в облако';
+      }catch(err){console.error(err);if(active===saveBoardId)$('status').textContent='Ошибка облачного сохранения';toast('Не удалось сохранить в облако: '+(err.code||err.message));}
     },350);
   }
 }function checkpoint(){history.push(JSON.stringify(data));if(history.length>50)history.shift();future=[]}function el(tag,attrs={},parent=world){let e=document.createElementNS(ns,tag);for(let [k,v] of Object.entries(attrs))e.setAttribute(k,v);parent.append(e);return e}function render(){world.replaceChildren();world.setAttribute('transform',`translate(${cam.x} ${cam.y}) scale(${cam.z})`);$('bg').setAttribute('fill',$('material').value);let p=$('pat');p.replaceChildren();let type=$('pattern').value;let w=24,h=24,paths={grid:'M24 0H0V24',tri:'M0 0H24M0 24L12 0L24 24H0',cube:'M0 0L24 14L48 0M24 14V42M0 28L24 42L48 28M0 28V56L24 70L48 56V28M24 70V84',hex:'M0 12L7 0H21L28 12L21 24H7Z M28 12H42M28 12L35 0M28 12L35 24'};if(type==='cube'){w=48;h=84}if(type==='hex'){w=42;h=24}p.setAttribute('width',w);p.setAttribute('height',h);p.setAttribute('patternTransform',`translate(${cam.x} ${cam.y}) scale(${cam.z})`);if(type==='dots')el('circle',{cx:12,cy:12,r:1,fill:'#8191a5',opacity:.5},p);else if(paths[type])el('path',{d:paths[type],stroke:'#8191a5','stroke-opacity':.45,fill:'none'},p);for(let o of [...data.filter(o=>o.type==='link'),...data.filter(o=>o.type!=='link')]){let g=el('g',{'data-id':o.id,transform:`translate(${o.x||0} ${o.y||0})`});let a={stroke:o.color,'stroke-width':o.width,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};if(o.style&&o.style!=='solid'){let w=o.width||3;a['stroke-dasharray']=({dash:[5*w,3*w],dot:[0,3*w],dashdot:[5*w,3*w,0,3*w]}[o.style]||[]).join(' ')}if(['line','arrow','doublearrow','curve','elbow'].includes(o.type)){let x=o.dx||0,y=o.dy||0;let d=o.type==='curve'?`M0 0 C${x/2} 0 ${x/2} ${y} ${x} ${y}`:o.type==='elbow'?`M0 0 H${x/2} V${y} H${x}`:`M0 0 L${x} ${y}`;el('path',{...a,d},g);if(['arrow','doublearrow'].includes(o.type)){let ang=Math.atan2(y,x),len=Math.min(Math.hypot(x,y)/3,Math.max(12,o.width*4));function head(px,py,angle){el('path',{...a,'stroke-dasharray':'none',d:`M${px-len*Math.cos(angle-.5)} ${py-len*Math.sin(angle-.5)} L${px} ${py} L${px-len*Math.cos(angle+.5)} ${py-len*Math.sin(angle+.5)}`},g)}head(x,y,ang);if(o.type==='doublearrow')head(0,0,ang+Math.PI)}}if(['triangle','diamond','hexagon','star'].includes(o.type)){let w=o.w,h=o.h,pts=o.type==='triangle'?[[.5,0],[1,1],[0,1]]:o.type==='diamond'?[[.5,0],[1,.5],[.5,1],[0,.5]]:o.type==='hexagon'?[[.25,0],[.75,0],[1,.5],[.75,1],[.25,1],[0,.5]]:Array.from({length:10},(_,i)=>{let a=i*Math.PI/5-Math.PI/2,r=i%2?.22:.5;return [.5+r*Math.cos(a),.5+r*Math.sin(a)]});el('polygon',{...a,points:pts.map(([x,y])=>[x*w,y*h].join(',')).join(' ')},g)}if(o.type==='pen')el('polyline',{...a,points:o.points.map(p=>p.join(',')).join(' ')},g);if(o.type==='rect')el('rect',{...a,width:o.w,height:o.h},g);if(o.type==='ellipse')el('ellipse',{...a,cx:o.w/2,cy:o.h/2,rx:o.w/2,ry:o.h/2},g);if(o.type==='image')el('image',{href:o.src,width:o.w,height:o.h},g);if(o.type==='text'||o.type==='node'){if(o.type==='node'&&(!o.tree||!o.parent||data.find(n=>n.id===o.parent)?.parent==null))el('rect',{width:o.w,height:o.h,rx:12,fill:o.tree?(o.parent?'#ffebc6':'#ffffff'):'#ffffff',stroke:o.tree?'none':o.color,'stroke-width':2},g);let fs=fontSize(o.fontSize),t=el('text',{x:o.type==='node'?12:0,y:fs+6,fill:o.tree&&o.parent&&data.find(n=>n.id===o.parent)?.parent?'#ffffff':o.type==='node'?'#172536':o.color,'font-size':fs},g);o.text.split('\n').forEach((s,i)=>{el('tspan',{x:o.type==='node'?12:0,dy:i?fs*1.25:0},t).textContent=s})}if(o.type==='link'){let f=data.find(n=>n.id===o.from),t=data.find(n=>n.id===o.to);if(f&&t&&o.tree){let right=t.x>=f.x, x=f.x+(right?f.w:0), y=f.y+f.h/2, X=t.x+(right?0:t.w),Y=t.y+t.h/2,m=(x+X)/2;el('path',{...a,d:`M${x} ${y} C${m} ${y} ${m} ${Y} ${X} ${Y}`},g)}else if(f&&t)el('line',{...a,x1:f.x+f.w/2,y1:f.y+f.h/2,x2:t.x+t.w/2,y2:t.y+t.h/2},g)}if(o.id===selected)g.setAttribute('opacity','.65')}}function point(e){let r=svg.getBoundingClientRect();return {x:(e.clientX-r.left-cam.x)/cam.z,y:(e.clientY-r.top-cam.y)/cam.z}}function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}function add(o){checkpoint();data.push({id:id(),color:$('color').value,width:+$('width').value||3,style:$('lineStyle').value,...o});render();save()}function setTool(t){tool=t;linkStart=null;document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t))}document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));const activePointers=new Map();
