@@ -23,16 +23,24 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 let cloudUser = null, cloudEnabled = false, cloudApplying = false;
 let stopBoards = null, stopBoard = null, stopMessages = null;
-let cloudSaveTimer = null, cloudMessages = [];
+let cloudSaveTimer = null, cloudMessages = [], messageSnapshotReady=false;
 const memory=new Map(); let persistent=true; const store={getItem(k){try{return window.localStorage.getItem(k)}catch{persistent=false;return memory.get(k)??null}},setItem(k,v){try{window.localStorage.setItem(k,v)}catch(e){if(e.name==='QuotaExceededError')throw e;persistent=false;memory.set(k,String(v))}},removeItem(k){try{window.localStorage.removeItem(k)}catch{persistent=false;memory.delete(k)}}};
-const $=id=>document.getElementById(id), ns='http://www.w3.org/2000/svg', svg=$('svg'), world=$('world');let data=[],history=[],future=[],tool='select',cam={x:0,y:0,z:1},drag=null,linkStart=null,selected=null;const indexKey='triz-projects-v2';let projects;try{projects=JSON.parse(store.getItem(indexKey))}catch{}if(!Array.isArray(projects)||!projects.length)projects=[{id:'legacy',name:'ТРИЗ BCI'}];let active=store.getItem('triz-active-v2');if(!projects.some(p=>p.id===active))active=projects[0].id;let key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;function load(){try{return JSON.parse(store.getItem(key))||{}}catch{return {}}}let saved=load();data=saved.data||[];cam=saved.cam||cam;$('pattern').value=saved.pattern||'dots';$('material').value=saved.material||'#fafafa';function save(){
+const $=id=>document.getElementById(id), ns='http://www.w3.org/2000/svg', svg=$('svg'), world=$('world');let data=[],history=[],future=[],tool='select',cam={x:0,y:0,z:1},drag=null,linkStart=null,selected=null;const indexKey='triz-projects-v2';let projects;try{projects=JSON.parse(store.getItem(indexKey))}catch{}if(!Array.isArray(projects)||!projects.length)projects=[{id:'legacy',name:'ТРИЗ BCI'}];let active=store.getItem('triz-active-v2');if(!projects.some(p=>p.id===active))active=projects[0].id;let key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;function load(){try{return JSON.parse(store.getItem(key))||{}}catch{return {}}}let saved=load();data=saved.data||[];cam=saved.cam||cam;
+function cameraKey(){return 'triz-camera-v1-'+(cloudUser?.uid||'guest')+'-'+active}
+function restoreCamera(){try{const c=JSON.parse(store.getItem(cameraKey())||'null');cam=c&&Number.isFinite(c.x)&&Number.isFinite(c.y)&&Number.isFinite(c.z)?c:{x:0,y:0,z:1}}catch{cam={x:0,y:0,z:1}}}
+$('pattern').value=saved.pattern||'dots';$('material').value=saved.material||'#fafafa';function save(){
   const state={data,cam,pattern:$('pattern').value,material:$('material').value};
-  try{store.setItem(key,JSON.stringify(state));$('status').textContent=persistent?'Локально сохранено':'Временный режим: экспортируйте JSON'}catch{$('status').textContent='Ошибка локального сохранения'}
+  try{
+    store.setItem(key,JSON.stringify(state));
+    store.setItem(cameraKey(),JSON.stringify(cam));
+    $('status').textContent=persistent?'Локально сохранено':'Временный режим: экспортируйте JSON'
+  }catch{$('status').textContent='Ошибка локального сохранения'}
   if(cloudEnabled && cloudUser && !cloudApplying){
     clearTimeout(cloudSaveTimer);
     cloudSaveTimer=setTimeout(async()=>{
       try{
-        const value=JSON.stringify(state);
+        const cloudState={data:state.data,pattern:state.pattern,material:state.material};
+        const value=JSON.stringify(cloudState);
         if(value.length>800000){toast('Доска слишком большая для текущего лимита Firestore. Для изображений подключим Firebase Storage.');return;}
         await setDoc(doc(db,'objects',active),{value});
         await setDoc(doc(db,'boards',active),{
@@ -43,7 +51,59 @@ const $=id=>document.getElementById(id), ns='http://www.w3.org/2000/svg', svg=$(
       }catch(err){console.error(err);$('status').textContent='Ошибка облачного сохранения';toast('Не удалось сохранить в облако: '+(err.code||err.message));}
     },350);
   }
-}function checkpoint(){history.push(JSON.stringify(data));if(history.length>50)history.shift();future=[]}function el(tag,attrs={},parent=world){let e=document.createElementNS(ns,tag);for(let [k,v] of Object.entries(attrs))e.setAttribute(k,v);parent.append(e);return e}function render(){world.replaceChildren();world.setAttribute('transform',`translate(${cam.x} ${cam.y}) scale(${cam.z})`);$('bg').setAttribute('fill',$('material').value);let p=$('pat');p.replaceChildren();let type=$('pattern').value;let w=24,h=24,paths={grid:'M24 0H0V24',tri:'M0 0H24M0 24L12 0L24 24H0',cube:'M0 0L24 14L48 0M24 14V42M0 28L24 42L48 28M0 28V56L24 70L48 56V28M24 70V84',hex:'M0 12L7 0H21L28 12L21 24H7Z M28 12H42M28 12L35 0M28 12L35 24'};if(type==='cube'){w=48;h=84}if(type==='hex'){w=42;h=24}p.setAttribute('width',w);p.setAttribute('height',h);p.setAttribute('patternTransform',`translate(${cam.x} ${cam.y}) scale(${cam.z})`);if(type==='dots')el('circle',{cx:12,cy:12,r:1,fill:'#8191a5',opacity:.5},p);else if(paths[type])el('path',{d:paths[type],stroke:'#8191a5','stroke-opacity':.45,fill:'none'},p);for(let o of [...data.filter(o=>o.type==='link'),...data.filter(o=>o.type!=='link')]){let g=el('g',{'data-id':o.id,transform:`translate(${o.x||0} ${o.y||0})`});let a={stroke:o.color,'stroke-width':o.width,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};if(o.style&&o.style!=='solid'){let w=o.width||3;a['stroke-dasharray']=({dash:[5*w,3*w],dot:[0,3*w],dashdot:[5*w,3*w,0,3*w]}[o.style]||[]).join(' ')}if(['line','arrow','doublearrow','curve','elbow'].includes(o.type)){let x=o.dx||0,y=o.dy||0;let d=o.type==='curve'?`M0 0 C${x/2} 0 ${x/2} ${y} ${x} ${y}`:o.type==='elbow'?`M0 0 H${x/2} V${y} H${x}`:`M0 0 L${x} ${y}`;el('path',{...a,d},g);if(['arrow','doublearrow'].includes(o.type)){let ang=Math.atan2(y,x),len=Math.min(Math.hypot(x,y)/3,Math.max(12,o.width*4));function head(px,py,angle){el('path',{...a,'stroke-dasharray':'none',d:`M${px-len*Math.cos(angle-.5)} ${py-len*Math.sin(angle-.5)} L${px} ${py} L${px-len*Math.cos(angle+.5)} ${py-len*Math.sin(angle+.5)}`},g)}head(x,y,ang);if(o.type==='doublearrow')head(0,0,ang+Math.PI)}}if(['triangle','diamond','hexagon','star'].includes(o.type)){let w=o.w,h=o.h,pts=o.type==='triangle'?[[.5,0],[1,1],[0,1]]:o.type==='diamond'?[[.5,0],[1,.5],[.5,1],[0,.5]]:o.type==='hexagon'?[[.25,0],[.75,0],[1,.5],[.75,1],[.25,1],[0,.5]]:Array.from({length:10},(_,i)=>{let a=i*Math.PI/5-Math.PI/2,r=i%2?.22:.5;return [.5+r*Math.cos(a),.5+r*Math.sin(a)]});el('polygon',{...a,points:pts.map(([x,y])=>[x*w,y*h].join(',')).join(' ')},g)}if(o.type==='pen')el('polyline',{...a,points:o.points.map(p=>p.join(',')).join(' ')},g);if(o.type==='rect')el('rect',{...a,width:o.w,height:o.h},g);if(o.type==='ellipse')el('ellipse',{...a,cx:o.w/2,cy:o.h/2,rx:o.w/2,ry:o.h/2},g);if(o.type==='image')el('image',{href:o.src,width:o.w,height:o.h},g);if(o.type==='text'||o.type==='node'){if(o.type==='node'&&(!o.tree||!o.parent||data.find(n=>n.id===o.parent)?.parent==null))el('rect',{width:o.w,height:o.h,rx:12,fill:o.tree?(o.parent?'#ffebc6':'#ffffff'):'#ffffff',stroke:o.tree?'none':o.color,'stroke-width':2},g);let fs=fontSize(o.fontSize),t=el('text',{x:o.type==='node'?12:0,y:fs+6,fill:o.tree&&o.parent&&data.find(n=>n.id===o.parent)?.parent?'#ffffff':o.type==='node'?'#172536':o.color,'font-size':fs},g);o.text.split('\n').forEach((s,i)=>{el('tspan',{x:o.type==='node'?12:0,dy:i?fs*1.25:0},t).textContent=s})}if(o.type==='link'){let f=data.find(n=>n.id===o.from),t=data.find(n=>n.id===o.to);if(f&&t&&o.tree){let right=t.x>=f.x, x=f.x+(right?f.w:0), y=f.y+f.h/2, X=t.x+(right?0:t.w),Y=t.y+t.h/2,m=(x+X)/2;el('path',{...a,d:`M${x} ${y} C${m} ${y} ${m} ${Y} ${X} ${Y}`},g)}else if(f&&t)el('line',{...a,x1:f.x+f.w/2,y1:f.y+f.h/2,x2:t.x+t.w/2,y2:t.y+t.h/2},g)}if(o.id===selected)g.setAttribute('opacity','.65')}}function point(e){let r=svg.getBoundingClientRect();return {x:(e.clientX-r.left-cam.x)/cam.z,y:(e.clientY-r.top-cam.y)/cam.z}}function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}function add(o){checkpoint();data.push({id:id(),color:$('color').value,width:+$('width').value||3,style:$('lineStyle').value,...o});render();save()}function setTool(t){tool=t;linkStart=null;document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t))}document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));svg.onpointerdown=e=>{if(editing){finishEditor(true);return}let p=point(e),target=e.target.closest('[data-id]'),o=target&&data.find(n=>n.id===target.dataset.id);if(tool==='pan'||e.button===1){drag={pan:true,x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y}}else if(tool==='erase'&&o){checkpoint();data=data.filter(n=>n.id!==o.id&&n.from!==o.id&&n.to!==o.id);render();save()}else if(tool==='select'){selected=o?.id||null;if(o&&['text','node'].includes(o.type))$('fontSize').value=fontSize(o.fontSize);if(o&&o.type!=='link'){checkpoint();drag={o,x:p.x,y:p.y,ox:o.x,oy:o.y}}render()}else if(tool==='link'&&o?.type==='node'){if(linkStart&&linkStart!==o.id){add({type:'link',from:linkStart,to:o.id});linkStart=null;selected=null;render()}else{linkStart=o.id;selected=o.id;render()}}else if(tool==='text'||tool==='node'){if(o&&['text','node'].includes(o.type))openEditor(o.type,o,o);else openEditor(tool,p);}else if(['pen','rect','ellipse','line','arrow','doublearrow','curve','elbow','triangle','diamond','hexagon','star'].includes(tool)){checkpoint();let o={id:id(),type:tool,x:p.x,y:p.y,color:$('color').value,width:+$('width').value||3,style:$('lineStyle').value,points:[[0,0]],w:1,h:1,dx:0,dy:0};data.push(o);drag={draw:true,o,x:p.x,y:p.y}}if(drag)svg.setPointerCapture(e.pointerId)};svg.onpointermove=e=>{if(!drag)return;let p=point(e),d=drag;if(d.pan){cam.x=d.cx+e.clientX-d.x;cam.y=d.cy+e.clientY-d.y}else if(d.draw){if(d.o.type==='pen')d.o.points.push([p.x-d.x,p.y-d.y]);else if(['line','arrow','doublearrow','curve','elbow'].includes(d.o.type)){d.o.dx=p.x-d.x;d.o.dy=p.y-d.y}else{d.o.x=Math.min(p.x,d.x);d.o.y=Math.min(p.y,d.y);d.o.w=Math.abs(p.x-d.x);d.o.h=Math.abs(p.y-d.y)}}else{d.o.x=d.ox+p.x-d.x;d.o.y=d.oy+p.y-d.y}render()};svg.onpointerup=svg.onpointercancel=()=>{if(drag){drag=null;save()}};svg.ondblclick=e=>{let o=data.find(n=>n.id===(e.target.closest('[data-id]')?.dataset.id||selected));if(o&&['node','text'].includes(o.type))openEditor(o.type,o,o)};
+}function checkpoint(){history.push(JSON.stringify(data));if(history.length>50)history.shift();future=[]}function el(tag,attrs={},parent=world){let e=document.createElementNS(ns,tag);for(let [k,v] of Object.entries(attrs))e.setAttribute(k,v);parent.append(e);return e}function render(){world.replaceChildren();world.setAttribute('transform',`translate(${cam.x} ${cam.y}) scale(${cam.z})`);$('bg').setAttribute('fill',$('material').value);let p=$('pat');p.replaceChildren();let type=$('pattern').value;let w=24,h=24,paths={grid:'M24 0H0V24',tri:'M0 0H24M0 24L12 0L24 24H0',cube:'M0 0L24 14L48 0M24 14V42M0 28L24 42L48 28M0 28V56L24 70L48 56V28M24 70V84',hex:'M0 12L7 0H21L28 12L21 24H7Z M28 12H42M28 12L35 0M28 12L35 24'};if(type==='cube'){w=48;h=84}if(type==='hex'){w=42;h=24}p.setAttribute('width',w);p.setAttribute('height',h);p.setAttribute('patternTransform',`translate(${cam.x} ${cam.y}) scale(${cam.z})`);if(type==='dots')el('circle',{cx:12,cy:12,r:1,fill:'#8191a5',opacity:.5},p);else if(paths[type])el('path',{d:paths[type],stroke:'#8191a5','stroke-opacity':.45,fill:'none'},p);for(let o of [...data.filter(o=>o.type==='link'),...data.filter(o=>o.type!=='link')]){let g=el('g',{'data-id':o.id,transform:`translate(${o.x||0} ${o.y||0})`});let a={stroke:o.color,'stroke-width':o.width,fill:'none','stroke-linecap':'round','stroke-linejoin':'round'};if(o.style&&o.style!=='solid'){let w=o.width||3;a['stroke-dasharray']=({dash:[5*w,3*w],dot:[0,3*w],dashdot:[5*w,3*w,0,3*w]}[o.style]||[]).join(' ')}if(['line','arrow','doublearrow','curve','elbow'].includes(o.type)){let x=o.dx||0,y=o.dy||0;let d=o.type==='curve'?`M0 0 C${x/2} 0 ${x/2} ${y} ${x} ${y}`:o.type==='elbow'?`M0 0 H${x/2} V${y} H${x}`:`M0 0 L${x} ${y}`;el('path',{...a,d},g);if(['arrow','doublearrow'].includes(o.type)){let ang=Math.atan2(y,x),len=Math.min(Math.hypot(x,y)/3,Math.max(12,o.width*4));function head(px,py,angle){el('path',{...a,'stroke-dasharray':'none',d:`M${px-len*Math.cos(angle-.5)} ${py-len*Math.sin(angle-.5)} L${px} ${py} L${px-len*Math.cos(angle+.5)} ${py-len*Math.sin(angle+.5)}`},g)}head(x,y,ang);if(o.type==='doublearrow')head(0,0,ang+Math.PI)}}if(['triangle','diamond','hexagon','star'].includes(o.type)){let w=o.w,h=o.h,pts=o.type==='triangle'?[[.5,0],[1,1],[0,1]]:o.type==='diamond'?[[.5,0],[1,.5],[.5,1],[0,.5]]:o.type==='hexagon'?[[.25,0],[.75,0],[1,.5],[.75,1],[.25,1],[0,.5]]:Array.from({length:10},(_,i)=>{let a=i*Math.PI/5-Math.PI/2,r=i%2?.22:.5;return [.5+r*Math.cos(a),.5+r*Math.sin(a)]});el('polygon',{...a,points:pts.map(([x,y])=>[x*w,y*h].join(',')).join(' ')},g)}if(o.type==='pen')el('polyline',{...a,points:o.points.map(p=>p.join(',')).join(' ')},g);if(o.type==='rect')el('rect',{...a,width:o.w,height:o.h},g);if(o.type==='ellipse')el('ellipse',{...a,cx:o.w/2,cy:o.h/2,rx:o.w/2,ry:o.h/2},g);if(o.type==='image')el('image',{href:o.src,width:o.w,height:o.h},g);if(o.type==='text'||o.type==='node'){if(o.type==='node'&&(!o.tree||!o.parent||data.find(n=>n.id===o.parent)?.parent==null))el('rect',{width:o.w,height:o.h,rx:12,fill:o.tree?(o.parent?'#ffebc6':'#ffffff'):'#ffffff',stroke:o.tree?'none':o.color,'stroke-width':2},g);let fs=fontSize(o.fontSize),t=el('text',{x:o.type==='node'?12:0,y:fs+6,fill:o.tree&&o.parent&&data.find(n=>n.id===o.parent)?.parent?'#ffffff':o.type==='node'?'#172536':o.color,'font-size':fs},g);o.text.split('\n').forEach((s,i)=>{el('tspan',{x:o.type==='node'?12:0,dy:i?fs*1.25:0},t).textContent=s})}if(o.type==='link'){let f=data.find(n=>n.id===o.from),t=data.find(n=>n.id===o.to);if(f&&t&&o.tree){let right=t.x>=f.x, x=f.x+(right?f.w:0), y=f.y+f.h/2, X=t.x+(right?0:t.w),Y=t.y+t.h/2,m=(x+X)/2;el('path',{...a,d:`M${x} ${y} C${m} ${y} ${m} ${Y} ${X} ${Y}`},g)}else if(f&&t)el('line',{...a,x1:f.x+f.w/2,y1:f.y+f.h/2,x2:t.x+t.w/2,y2:t.y+t.h/2},g)}if(o.id===selected)g.setAttribute('opacity','.65')}}function point(e){let r=svg.getBoundingClientRect();return {x:(e.clientX-r.left-cam.x)/cam.z,y:(e.clientY-r.top-cam.y)/cam.z}}function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}function add(o){checkpoint();data.push({id:id(),color:$('color').value,width:+$('width').value||3,style:$('lineStyle').value,...o});render();save()}function setTool(t){tool=t;linkStart=null;document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t))}document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));const activePointers=new Map();
+let pinchState=null;
+const pointerDistance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const pointerMid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+svg.onpointerdown=e=>{
+  e.preventDefault();
+  activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  try{svg.setPointerCapture(e.pointerId)}catch{}
+  if(activePointers.size===2){
+    drag=null;
+    const pts=[...activePointers.values()],r=svg.getBoundingClientRect(),mid=pointerMid(pts[0],pts[1]);
+    const center={x:mid.x-r.left,y:mid.y-r.top};
+    pinchState={distance:Math.max(1,pointerDistance(pts[0],pts[1])),cam:{...cam},center,
+      worldX:(center.x-cam.x)/cam.z,worldY:(center.y-cam.y)/cam.z};
+    return;
+  }
+  if(activePointers.size>2)return;
+  let p=point(e),target=e.target.closest('[data-id]'),o=target&&data.find(n=>n.id===target.dataset.id);
+  if(tool==='pan'||e.button===1){drag={pan:true,x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y}}
+  else if(tool==='erase'&&o){checkpoint();data=data.filter(n=>n.id!==o.id&&n.from!==o.id&&n.to!==o.id);render();save()}
+  else if(tool==='select'){selected=o?.id||null;if(o&&['text','node'].includes(o.type))$('fontSize').value=fontSize(o.fontSize);if(o&&o.type!=='link'){checkpoint();drag={o,x:p.x,y:p.y,ox:o.x,oy:o.y}}render()}
+  else if(tool==='link'&&o?.type==='node'){if(linkStart&&linkStart!==o.id){add({type:'link',from:linkStart,to:o.id});linkStart=null;selected=null;render()}else{linkStart=o.id;selected=o.id;render()}}
+  else if(tool==='text'||tool==='node'){if(o&&['text','node'].includes(o.type))openEditor(o.type,o,o);else openEditor(tool,p)}
+  else if(['pen','rect','ellipse','line','arrow','doublearrow','curve','elbow','triangle','diamond','hexagon','star'].includes(tool)){checkpoint();let obj={id:id(),type:tool,x:p.x,y:p.y,color:$('color').value,width:+$('width').value||3,style:$('lineStyle').value,points:[[0,0]],w:1,h:1,dx:0,dy:0};data.push(obj);drag={draw:true,o:obj,x:p.x,y:p.y}}
+};
+svg.onpointermove=e=>{
+  if(activePointers.has(e.pointerId))activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pinchState&&activePointers.size>=2){
+    const pts=[...activePointers.values()].slice(0,2),r=svg.getBoundingClientRect();
+    const dist=Math.max(1,pointerDistance(pts[0],pts[1])),mid=pointerMid(pts[0],pts[1]);
+    const center={x:mid.x-r.left,y:mid.y-r.top};
+    const z=Math.max(.03,Math.min(20,pinchState.cam.z*dist/pinchState.distance));
+    cam.z=z;cam.x=center.x-pinchState.worldX*z;cam.y=center.y-pinchState.worldY*z;
+    render();return;
+  }
+  if(!drag||activePointers.size>1)return;
+  let p=point(e),d=drag;
+  if(d.pan){cam.x=d.cx+e.clientX-d.x;cam.y=d.cy+e.clientY-d.y}
+  else if(d.draw){if(d.o.type==='pen')d.o.points.push([p.x-d.x,p.y-d.y]);else if(['line','arrow','doublearrow','curve','elbow'].includes(d.o.type)){d.o.dx=p.x-d.x;d.o.dy=p.y-d.y}else{d.o.x=Math.min(p.x,d.x);d.o.y=Math.min(p.y,d.y);d.o.w=Math.abs(p.x-d.x);d.o.h=Math.abs(p.y-d.y)}}
+  else{d.o.x=d.ox+p.x-d.x;d.o.y=d.oy+p.y-d.y}
+  render();
+};
+function finishPointer(e){
+  activePointers.delete(e.pointerId);
+  if(pinchState){
+    if(activePointers.size<2){pinchState=null;save()}
+    drag=null;return;
+  }
+  if(drag&&activePointers.size===0){drag=null;save()}
+}
+svg.onpointerup=finishPointer;
+svg.onpointercancel=finishPointer;
+svg.ondblclick=e=>{let o=data.find(n=>n.id===(e.target.closest('[data-id]')?.dataset.id||selected));if(o&&['node','text'].includes(o.type))openEditor(o.type,o,o)};
 function fontSize(v){return Math.max(8,Math.min(200,Number(v)||18))}function textDimensions(t,fs){let ctx=document.createElement('canvas').getContext('2d');ctx.font=fs+'px system-ui';let lines=t.split('\n');return {w:Math.max(150,...lines.map(s=>ctx.measureText(s).width+28)),h:Math.max(55,lines.length*fs*1.25+20)}}
 $('fontSize').onchange=()=>{let fs=fontSize($('fontSize').value);$('fontSize').value=fs;let o=data.find(n=>n.id===selected);if(o&&['text','node'].includes(o.type)){checkpoint();Object.assign(o,{fontSize:fs},textDimensions(o.text,fs));render();save()}};
 $('editorSize').oninput=()=>{$('inlineText').style.fontSize=Math.max(10,Math.min(200,fontSize($('editorSize').value)*cam.z))+'px'};
@@ -103,12 +163,12 @@ $('send').onsubmit=async e=>{
     });
     $('msg').value='';
   }catch(err){toast('Не удалось отправить сообщение: '+(err.code||err.message));}
-};$('notify').onclick=async()=>{if(!('Notification'in window)){toast('Браузер не поддерживает уведомления');return}try{let p=await Notification.requestPermission();toast(p==='granted'?'Разрешено для локальных событий, пока приложение открыто':'Уведомления не разрешены')}catch{toast('Для уведомлений нужен поддерживаемый браузер и HTTPS')}};function startBoardSync(){
+};$('notify').onclick=async()=>{if(!('Notification'in window)){toast('Браузер не поддерживает уведомления');return}try{let p=await Notification.requestPermission();toast(p==='granted'?'Уведомления разрешены. Для доставки при полностью закрытом приложении потребуется Web Push (FCM)':'Уведомления не разрешены')}catch{toast('Для уведомлений нужен поддерживаемый браузер и HTTPS')}};function startBoardSync(){
   if(stopBoard){stopBoard();stopBoard=null;}
   if(!cloudEnabled||!cloudUser)return;
   stopBoard=onSnapshot(doc(db,'objects',active),snap=>{
     if(!snap.exists()){
-      const state={data,cam,pattern:$('pattern').value,material:$('material').value};
+      const state={data,pattern:$('pattern').value,material:$('material').value};
       const value=JSON.stringify(state);
       if(value.length<=800000)setDoc(doc(db,'objects',active),{value}).catch(console.error);
       return;
@@ -118,10 +178,10 @@ $('send').onsubmit=async e=>{
       if(drag||editing)return;
       cloudApplying=true;
       data=Array.isArray(state.data)?state.data:[];
-      cam=state.cam||{x:0,y:0,z:1};
+      // Камера (масштаб и смещение) локальная: не принимаем её из облака.
       $('pattern').value=state.pattern||'dots';
       $('material').value=state.material||'#fafafa';
-      store.setItem(key,JSON.stringify(state));
+      store.setItem(key,JSON.stringify({...state,cam}));
       render();cloudApplying=false;
       $('status').textContent='☁ Синхронизировано';
     }catch(err){cloudApplying=false;console.error(err);toast('Не удалось прочитать состояние доски');}
@@ -130,16 +190,30 @@ $('send').onsubmit=async e=>{
 function startMessageSync(){
   if(stopMessages){stopMessages();stopMessages=null;}
   if(!cloudEnabled)return;
+  messageSnapshotReady=false;
   stopMessages=onSnapshot(query(collection(db,'messages'),orderBy('created','asc'),limit(150)),snap=>{
-    cloudMessages=snap.docs.map(d=>({id:d.id,...d.data()})).map(m=>{
+    const parsed=snap.docs.map(d=>({id:d.id,...d.data()})).map(m=>{
       try{const payload=JSON.parse(m.text);if(payload&&typeof payload==='object')return {...m,boardId:payload.boardId,text:payload.text};}catch{}
       return {...m,boardId:'legacy'};
     });
-    showChat();
-    const latest=cloudMessages.filter(m=>m.boardId===active).at(-1);
-    if(latest&&latest.uid!==cloudUser?.uid&&'Notification'in window&&Notification.permission==='granted'){
-      try{new Notification(latest.name,{body:latest.text})}catch{}
+    if(messageSnapshotReady){
+      for(const change of snap.docChanges()){
+        if(change.type!=='added')continue;
+        const m=parsed.find(x=>x.id===change.doc.id);
+        if(!m||m.uid===cloudUser?.uid||m.boardId!==active)continue;
+        if('Notification'in window&&Notification.permission==='granted'){
+          try{
+            const n=new Notification('Новое сообщение · '+(m.name||'Участник'),{
+              body:m.text,tag:'triz-chat-'+m.id,renotify:false
+            });
+            n.onclick=()=>{window.focus();$('chat').style.display='flex';n.close();};
+          }catch(err){console.warn('Notification unavailable',err);}
+        }
+      }
     }
+    cloudMessages=parsed;
+    messageSnapshotReady=true;
+    showChat();
   },err=>{console.error(err);toast('Ошибка загрузки чата: '+err.message);});
 }
 function startCloud(){
@@ -151,7 +225,7 @@ function startCloud(){
       for(const p of projects){
         await setDoc(doc(db,'boards',p.id),{name:p.name,pattern:$('pattern').value,material:$('material').value,archived:false},{merge:true});
       }
-      const state={data,cam,pattern:$('pattern').value,material:$('material').value};
+      const state={data,pattern:$('pattern').value,material:$('material').value};
       const value=JSON.stringify(state);
       if(value.length<=800000)await setDoc(doc(db,'objects',active),{value},{merge:true});
       return;
@@ -176,7 +250,7 @@ function persistProjectsLocal(){
     const p=projects.find(p=>p.id===active);
     if(p)setDoc(doc(db,'boards',active),{name:p.name,pattern:$('pattern').value,material:$('material').value,archived:false},{merge:true}).catch(err=>toast('Не удалось сохранить название доски: '+err.message));
   }
-}function switchProject(next,keep=true){if(drag)return;finishEditor(false);if(keep)save();active=next;key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;chatKey=active==='legacy'?'triz-chat':'triz-chat-v2-'+active;let s=load();data=s.data||[];cam=s.cam||{x:0,y:0,z:1};$('pattern').value=s.pattern||'dots';$('material').value=s.material||'#fafafa';history=[];future=[];selected=null;linkStart=null; $('msg').value='';persistProjects();render();showChat();if(cloudEnabled)startBoardSync()}$('projects').onchange=()=>switchProject($('projects').value);$('newProject').onclick=async()=>{let name=await ask('Название новой доски','');if(!name?.trim())return;let p={id:id(),name:name.trim()};projects.push(p);switchProject(p.id)};$('renameProject').onclick=async()=>{let p=projects.find(p=>p.id===active),name=await ask('Название доски',p.name);if(name?.trim()){p.name=name.trim();persistProjects()}};$('deleteProject').onclick=async()=>{
+}function switchProject(next,keep=true){if(drag)return;finishEditor(false);if(keep)save();active=next;key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;chatKey=active==='legacy'?'triz-chat':'triz-chat-v2-'+active;let s=load();data=s.data||[];restoreCamera();$('pattern').value=s.pattern||'dots';$('material').value=s.material||'#fafafa';history=[];future=[];selected=null;linkStart=null; $('msg').value='';persistProjects();render();showChat();if(cloudEnabled)startBoardSync()}$('projects').onchange=()=>switchProject($('projects').value);$('newProject').onclick=async()=>{let name=await ask('Название новой доски','');if(!name?.trim())return;let p={id:id(),name:name.trim()};projects.push(p);switchProject(p.id)};$('renameProject').onclick=async()=>{let p=projects.find(p=>p.id===active),name=await ask('Название доски',p.name);if(name?.trim()){p.name=name.trim();persistProjects()}};$('deleteProject').onclick=async()=>{
   if(projects.length===1){toast('Оставьте хотя бы одну доску');return;}
   if(!await ask('Архивировать эту доску?'))return;
   try{if(cloudEnabled)await updateDoc(doc(db,'boards',active),{archived:true});}catch(err){toast('Не удалось архивировать доску: '+err.message);return;}
@@ -205,6 +279,7 @@ onAuthStateChanged(auth,async user=>{
       return;
     }
     $('gate').style.display='none';
+    restoreCamera();render();
     $('status').textContent='Подключение к облаку…';
     $('error').textContent='';
     startCloud();
