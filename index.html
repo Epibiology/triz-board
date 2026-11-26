@@ -133,20 +133,23 @@
 @media (max-width:700px) {
   #mobileToolsToggle {
     display:block;
-    position:fixed;
-    z-index:20;
-    left:12px;
-    bottom:max(12px, env(safe-area-inset-bottom));
+    position:static;
+    flex:0 0 auto;
+    align-self:flex-start;
+    margin:4px 8px;
     min-height:44px;
-    padding:10px 14px;
+    padding:8px 14px;
     border:1px solid #6682a6;
-    border-radius:999px;
+    border-radius:12px;
     background:#263d59;
     color:#fff;
     font-weight:600;
-    box-shadow:0 4px 16px #0008;
   }
   body.tools-collapsed nav#tools { display:none !important; }
+  aside#chat { overflow-y:auto; }
+  #chat #messages { min-height:0; }
+  #chat #send { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+  #chat #send button, #chat #notify { width:100%; min-height:44px; flex-shrink:0; }
 }
 
 </style><header><b>◈ TRIZ BCI Board · v0.6</b><select id="projects" title="Проект"></select><button id="newProject">＋ Доска</button><button id="renameProject">Переименовать</button><button id="deleteProject">Удалить доску</button><span id="status">Локальный режим</span><button id="chatToggle">Чат</button><button id="soundToggle" type="button" title="Звуковые сигналы на этом устройстве">🔕 Звук выключен</button><button id="logout">Выход</button></header><nav id="tools" aria-label="Панель инструментов" title="На телефоне прокручивайте панель инструментов влево и вправо"><button data-tool="select">↖ Выбор</button><button data-tool="pan">✋ Полотно</button><button data-tool="pen">✎ Перо</button><button data-tool="text">Текст</button><button data-tool="node">Блок карты</button><button id="treeRoot">＋ Дерево</button><button id="treeChild">＋ Ветвь</button><button id="treeLayout">Разложить дерево</button><button id="treeExample">Пример ЭЭГ</button><button data-tool="link">Связь</button><button data-tool="rect">□</button><button data-tool="ellipse">○</button><button data-tool="line">╱ Прямая</button><button data-tool="arrow">↗ Стрелка</button><button data-tool="doublearrow">↔ Двойная</button><button data-tool="curve">∿ Кривая</button><button data-tool="elbow">┐ Угловая</button><button data-tool="triangle">△</button><button data-tool="diamond">◇</button><button data-tool="hexagon">⬡</button><button data-tool="star">☆</button><select id="lineStyle" title="Тип линии"><option value="solid">Сплошная</option><option value="dash">Штриховая</option><option value="dot">Пунктирная</option><option value="dashdot">Штрихпунктирная</option></select><button data-tool="erase">Ластик</button><input id="color" type="color" value="#2563eb" title="Цвет"><input id="width" type="number" min="1" max="40" value="3" style="width:60px" title="Толщина"><label title="Размер шрифта">Шрифт <input id="fontSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="image">Фото</button><input id="file" type="file" accept="image/*" hidden><button id="undo">↶</button><button id="redo">↷</button><button id="minus">−</button><button id="plus">+</button><button id="home">100%</button><select id="pattern"><option value="dots">Точки</option><option value="grid">Клетка</option><option value="cube">Кубы</option><option value="hex">Соты</option><option value="tri">Треугольники</option><option value="none">Чистая</option></select><select id="material"><option value="#4c98a8">Бирюзовая</option><option value="#fafafa">Белая доска</option><option value="#292d35">Графит</option><option value="#fff2d5">Бумага</option><option value="#174b80">Чертёж</option><option value="#c7a47b">Крафт</option><option value="#23483c">Меловая</option></select><button id="export">SVG</button><button id="backup">JSON</button><button id="restore">Импорт</button><input id="importFile" type="file" accept=".json" hidden></nav><button id="mobileToolsToggle" type="button" aria-controls="tools" aria-expanded="true">☰ Инструменты</button><main><div id="stage"><svg id="svg" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="pat" patternUnits="userSpaceOnUse" width="24" height="24"></pattern></defs><rect id="bg" width="100%" height="100%"/><rect id="grid" width="100%" height="100%" fill="url(#pat)"/><g id="world"></g></svg><div id="inlineEditor"><textarea id="inlineText" placeholder="Введите текст…"></textarea><footer><label>Размер <input id="editorSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="inlineCancel">Отмена</button><button id="inlineOK">Готово</button></footer></div></div><aside id="chat" hidden style="display:none"><b>Общий чат участников</b><input id="name" placeholder="Ваше имя"><div id="messages"></div><form id="send"><input id="msg" placeholder="Сообщение" required style="width:100%"><button>Отправить</button></form><button id="notify">Разрешить уведомления</button></aside></main><div id="gate"><form id="login"><h2>TRIZ BCI Board</h2><p>Вход участника</p><input id="email" type="email" autocomplete="username" placeholder="Электронная почта" required><input id="password" type="password" autocomplete="current-password" placeholder="Пароль Firebase" required><button>Войти</button><p id="error"></p></form></div><dialog id="boardDialog"><form id="dialogForm"><b id="dialogTitle"></b><input id="dialogInput" autocomplete="off"><footer><button type="button" id="dialogCancel">Отмена</button><button type="submit">Готово</button></footer></form></dialog><div id="toast" hidden role="status"></div><script type="module">
