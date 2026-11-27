@@ -1,9 +1,9 @@
-<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TRIZ BCI Board</title><style>*{box-sizing:border-box}body{margin:0;font:14px system-ui;background:#152131;color:#e9eff8}header,nav{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:9px}button,select,input{font:inherit;border:1px solid #526174;border-radius:7px;padding:8px;background:#26364b;color:white}button{cursor:pointer}button.active{background:#3974db}#stage{position:relative;flex:1;overflow:hidden}svg{width:100%;height:100%;touch-action:none;display:block}main{display:flex;flex:1;min-height:0}body{height:100dvh;display:flex;flex-direction:column}aside{width:280px;background:#1e2c40;padding:12px;display:flex;flex-direction:column;gap:8px}#messages{flex:1;overflow:auto;overflow-wrap:anywhere}#messages p{padding:9px 10px;border-radius:9px;margin:0 0 9px 0;white-space:pre-wrap;overflow-wrap:anywhere;border-left:4px solid var(--msg-accent,#8294aa);background:var(--msg-bg,#34465d);color:#f4f7fb}
+<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#152131"><title>TRIZ BCI Board</title><style>*{box-sizing:border-box}body{margin:0;font:14px system-ui;background:#152131;color:#e9eff8}header,nav{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:9px}button,select,input{font:inherit;border:1px solid #526174;border-radius:7px;padding:8px;background:#26364b;color:white}button{cursor:pointer}button.active{background:#3974db}#stage{position:relative;flex:1;overflow:hidden}svg{width:100%;height:100%;touch-action:none;display:block}main{display:flex;flex:1;min-height:0}body{height:100dvh;display:flex;flex-direction:column}aside{width:280px;background:#1e2c40;padding:12px;display:flex;flex-direction:column;gap:8px}#messages{flex:1;overflow:auto;overflow-wrap:anywhere}#messages p{padding:9px 10px;border-radius:9px;margin:0 0 9px 0;white-space:pre-wrap;overflow-wrap:anywhere;border-left:4px solid var(--msg-accent,#8294aa);background:var(--msg-bg,#34465d);color:#f4f7fb}
 #messages p .msg-meta{font-size:12px;opacity:.88;margin-bottom:3px;display:flex;gap:6px;align-items:center}
 #messages p .msg-author{font-weight:700}
 #messages p .msg-body{white-space:pre-wrap;overflow-wrap:anywhere}
 #messages p.msg-own{box-shadow:inset 0 0 0 1px #ffffff20}
-#gate{position:fixed;inset:0;background:#152131;display:grid;place-items:center;z-index:5}#gate form{padding:30px;background:#26364b;border-radius:16px}#status{margin-left:auto;color:#b6c6dc}#error{color:#ff9b9b;min-height:1.3em;max-width:420px;overflow-wrap:anywhere}#login button[disabled]{opacity:.65;cursor:wait} #inlineEditor{position:absolute;z-index:4;display:none;min-width:150px;max-width:95%;background:#fff;color:#172536;border:2px solid #60a5fa;border-radius:8px;padding:5px;box-shadow:0 5px 20px #0004}#inlineEditor textarea{display:block;width:100%;min-height:48px;resize:vertical;background:transparent;color:inherit;border:0;outline:none;font:inherit;padding:4px}#inlineEditor footer{display:flex;gap:5px;justify-content:flex-end}#inlineEditor button{padding:4px 8px}dialog{background:#26364b;color:white;border:1px solid #526174;border-radius:14px;padding:22px;width:min(420px,92vw)}dialog::backdrop{background:#0008}dialog input{width:100%;margin:12px 0}dialog footer{display:flex;justify-content:flex-end;gap:8px}#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:10;background:#26364b;color:white;padding:12px 20px;border-radius:9px;box-shadow:0 4px 20px #0005;pointer-events:none} 
+#gate{position:fixed;inset:0;background:#152131;display:grid;place-items:center;z-index:5}#gate form{padding:30px;background:#26364b;border-radius:16px}#status{margin-left:auto;color:#b6c6dc}#error{color:#ff9b9b;min-height:1.3em;max-width:420px;overflow-wrap:anywhere}#login button[disabled]{opacity:.65;cursor:wait} #inlineEditor{position:absolute;z-index:4;display:none;min-width:150px;max-width:95%;background:#fff;color:#172536;border:2px solid #60a5fa;border-radius:8px;padding:5px;box-shadow:0 5px 20px #0004}#inlineEditor textarea{display:block;width:100%;min-height:48px;resize:vertical;background:transparent;color:inherit;border:0;outline:none;font:inherit;padding:4px}#inlineEditor footer{display:flex;gap:5px;justify-content:flex-end}#inlineEditor button{padding:4px 8px}dialog{background:#26364b;color:white;border:1px solid #526174;border-radius:14px;padding:22px;width:min(420px,92vw)}dialog::backdrop{background:#0008}dialog input{width:100%;margin:12px 0}dialog footer{display:flex;justify-content:flex-end;gap:8px}#notificationList .notice{padding:10px;border-bottom:1px solid #526174;cursor:pointer}#notificationList .notice.unread{background:#344b66;border-radius:8px}#notificationList .notice small{display:block;color:#b9c8da;margin-top:4px}#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:10;background:#26364b;color:white;padding:12px 20px;border-radius:9px;box-shadow:0 4px 20px #0005;pointer-events:none} 
 /* Responsive layout: keep the full desktop toolset available on phones */
 @media (max-width: 700px) {
   html, body { width:100%; height:100%; min-height:100%; overflow:hidden; }
@@ -152,16 +152,28 @@
   #chat #send button, #chat #notify { width:100%; min-height:44px; flex-shrink:0; }
 }
 
-</style><header><b>◈ TRIZ BCI Board · v0.6</b><select id="projects" title="Проект"></select><button id="newProject">＋ Доска</button><button id="renameProject">Переименовать</button><button id="deleteProject">Удалить доску</button><span id="status">Локальный режим</span><button id="chatToggle">Чат</button><button id="soundToggle" type="button" title="Звуковые сигналы на этом устройстве">🔕 Звук выключен</button><button id="logout">Выход</button></header><nav id="tools" aria-label="Панель инструментов" title="На телефоне прокручивайте панель инструментов влево и вправо"><button data-tool="select">↖ Выбор</button><button data-tool="pan">✋ Полотно</button><button data-tool="pen">✎ Перо</button><button data-tool="text">Текст</button><button data-tool="node">Блок карты</button><button id="treeRoot">＋ Дерево</button><button id="treeChild">＋ Ветвь</button><button id="treeLayout">Разложить дерево</button><button id="treeExample">Пример ЭЭГ</button><button data-tool="link">Связь</button><button data-tool="rect">□</button><button data-tool="ellipse">○</button><button data-tool="line">╱ Прямая</button><button data-tool="arrow">↗ Стрелка</button><button data-tool="doublearrow">↔ Двойная</button><button data-tool="curve">∿ Кривая</button><button data-tool="elbow">┐ Угловая</button><button data-tool="triangle">△</button><button data-tool="diamond">◇</button><button data-tool="hexagon">⬡</button><button data-tool="star">☆</button><select id="lineStyle" title="Тип линии"><option value="solid">Сплошная</option><option value="dash">Штриховая</option><option value="dot">Пунктирная</option><option value="dashdot">Штрихпунктирная</option></select><button data-tool="erase">Ластик</button><input id="color" type="color" value="#2563eb" title="Цвет"><input id="width" type="number" min="1" max="40" value="3" style="width:60px" title="Толщина"><label title="Размер шрифта">Шрифт <input id="fontSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="image">Фото</button><input id="file" type="file" accept="image/*" hidden><button id="undo">↶</button><button id="redo">↷</button><button id="minus">−</button><button id="plus">+</button><button id="home">100%</button><select id="pattern"><option value="dots">Точки</option><option value="grid">Клетка</option><option value="cube">Кубы</option><option value="hex">Соты</option><option value="tri">Треугольники</option><option value="none">Чистая</option></select><select id="material"><option value="#4c98a8">Бирюзовая</option><option value="#fafafa">Белая доска</option><option value="#292d35">Графит</option><option value="#fff2d5">Бумага</option><option value="#174b80">Чертёж</option><option value="#c7a47b">Крафт</option><option value="#23483c">Меловая</option></select><button id="export">SVG</button><button id="backup">JSON</button><button id="restore">Импорт</button><input id="importFile" type="file" accept=".json" hidden></nav><button id="mobileToolsToggle" type="button" aria-controls="tools" aria-expanded="true">☰ Инструменты</button><main><div id="stage"><svg id="svg" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="pat" patternUnits="userSpaceOnUse" width="24" height="24"></pattern></defs><rect id="bg" width="100%" height="100%"/><rect id="grid" width="100%" height="100%" fill="url(#pat)"/><g id="world"></g></svg><div id="inlineEditor"><textarea id="inlineText" placeholder="Введите текст…"></textarea><footer><label>Размер <input id="editorSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="inlineCancel">Отмена</button><button id="inlineOK">Готово</button></footer></div></div><aside id="chat" hidden style="display:none"><b>Общий чат участников</b><input id="name" placeholder="Ваше имя"><div id="messages"></div><form id="send"><input id="msg" placeholder="Сообщение" required style="width:100%"><button>Отправить</button></form><button id="notify">Разрешить уведомления</button></aside></main><div id="gate"><form id="login"><h2>TRIZ BCI Board</h2><p>Вход участника</p><input id="email" type="email" autocomplete="username" placeholder="Электронная почта" required><input id="password" type="password" autocomplete="current-password" placeholder="Пароль Firebase" required><button>Войти</button><p id="error"></p></form></div><dialog id="boardDialog"><form id="dialogForm"><b id="dialogTitle"></b><input id="dialogInput" autocomplete="off"><footer><button type="button" id="dialogCancel">Отмена</button><button type="submit">Готово</button></footer></form></dialog><div id="toast" hidden role="status"></div><script type="module">
+</style><header><b>◈ TRIZ BCI Board · v0.6</b><select id="projects" title="Проект"></select><button id="folderToggle">📁 Папки</button><button id="notificationToggle" type="button">🔔 Уведомления <span id="notificationCount" style="display:none;background:#d9485f;border-radius:10px;padding:1px 6px;font-size:11px">0</span></button><button id="newProject">＋ Доска</button><button id="renameProject">Переименовать</button><button id="deleteProject">Удалить доску</button><span id="status">Локальный режим</span><button id="chatToggle">Чат</button><button id="soundToggle" type="button" title="Звуковые сигналы на этом устройстве">🔕 Звук выключен</button><button id="logout">Выход</button></header><nav id="tools" aria-label="Панель инструментов" title="На телефоне прокручивайте панель инструментов влево и вправо"><button data-tool="select">↖ Выбор</button><button data-tool="pan">✋ Полотно</button><button data-tool="pen">✎ Перо</button><button data-tool="text">Текст</button><button data-tool="node">Блок карты</button><button id="treeRoot">＋ Дерево</button><button id="treeChild">＋ Ветвь</button><button id="treeLayout">Разложить дерево</button><button id="treeExample">Пример ЭЭГ</button><button data-tool="link">Связь</button><button data-tool="rect">□</button><button data-tool="ellipse">○</button><button data-tool="line">╱ Прямая</button><button data-tool="arrow">↗ Стрелка</button><button data-tool="doublearrow">↔ Двойная</button><button data-tool="curve">∿ Кривая</button><button data-tool="elbow">┐ Угловая</button><button data-tool="triangle">△</button><button data-tool="diamond">◇</button><button data-tool="hexagon">⬡</button><button data-tool="star">☆</button><select id="lineStyle" title="Тип линии"><option value="solid">Сплошная</option><option value="dash">Штриховая</option><option value="dot">Пунктирная</option><option value="dashdot">Штрихпунктирная</option></select><button data-tool="erase">Ластик</button><input id="color" type="color" value="#2563eb" title="Цвет"><input id="width" type="number" min="1" max="40" value="3" style="width:60px" title="Толщина"><label title="Размер шрифта">Шрифт <input id="fontSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="image">Фото</button><input id="file" type="file" accept="image/*" hidden><button id="undo">↶</button><button id="redo">↷</button><button id="minus">−</button><button id="plus">+</button><button id="home">100%</button><select id="pattern"><option value="dots">Точки</option><option value="grid">Клетка</option><option value="cube">Кубы</option><option value="hex">Соты</option><option value="tri">Треугольники</option><option value="none">Чистая</option></select><select id="material"><option value="#4c98a8">Бирюзовая</option><option value="#fafafa">Белая доска</option><option value="#292d35">Графит</option><option value="#fff2d5">Бумага</option><option value="#174b80">Чертёж</option><option value="#c7a47b">Крафт</option><option value="#23483c">Меловая</option></select><button id="export">SVG</button><button id="backup">JSON</button><button id="restore">Импорт</button><input id="importFile" type="file" accept=".json" hidden></nav><button id="mobileToolsToggle" type="button" aria-controls="tools" aria-expanded="true">☰ Инструменты</button><main><div id="stage"><svg id="svg" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="pat" patternUnits="userSpaceOnUse" width="24" height="24"></pattern></defs><rect id="bg" width="100%" height="100%"/><rect id="grid" width="100%" height="100%" fill="url(#pat)"/><g id="world"></g></svg><div id="inlineEditor"><textarea id="inlineText" placeholder="Введите текст…"></textarea><footer><label>Размер <input id="editorSize" type="number" min="8" max="200" value="18" style="width:70px"></label><button id="inlineCancel">Отмена</button><button id="inlineOK">Готово</button></footer></div></div><aside id="chat" hidden style="display:none"><b>Общий чат участников</b><input id="name" placeholder="Ваше имя"><div id="messages"></div><form id="send"><input id="msg" placeholder="Сообщение" required style="width:100%"><button>Отправить</button></form><button id="notify">Разрешить уведомления</button></aside></main><div id="gate"><form id="login"><h2>TRIZ BCI Board</h2><p>Вход участника</p><input id="email" type="email" autocomplete="username" placeholder="Электронная почта" required><input id="password" type="password" autocomplete="current-password" placeholder="Пароль Firebase" required><button>Войти</button><p id="error"></p></form></div><dialog id="boardDialog"><form id="dialogForm"><b id="dialogTitle"></b><input id="dialogInput" autocomplete="off"><footer><button type="button" id="dialogCancel">Отмена</button><button type="submit">Готово</button></footer></form></dialog><dialog id="folderDialog" style="max-width:520px;width:calc(100% - 24px);background:#1e2d40;color:#e9eff8;border:1px solid #526174;border-radius:14px;padding:18px">
+<form id="folderForm">
+<h3 style="margin-top:0">Папки TRIZ BCI</h3>
+<p style="font-size:13px;color:#b9c8da">Создание личных и общих папок. Для общей папки укажи UID выбранных участников через запятую.</p>
+<input id="folderName" placeholder="Название папки" required maxlength="120" style="width:100%;margin:5px 0">
+<select id="folderType" style="width:100%;margin:5px 0"><option value="personal">Личная папка</option><option value="shared">Общая папка</option></select>
+<input id="folderMembers" placeholder="UID участников через запятую" style="width:100%;margin:5px 0">
+<select id="folderParent" style="width:100%;margin:5px 0"><option value="">Корневая папка</option></select>
+<div style="display:flex;align-items:center;gap:8px;margin:10px 0"><button type="button" id="folderUp" disabled>← Назад</button><span id="folderPath" style="font-size:13px;color:#b9c8da">Все папки</span></div>
+<div id="folderList" style="max-height:220px;overflow:auto;margin:10px 0"></div>
+<footer style="display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap"><button type="button" id="folderNewBoard">＋ Создать доску здесь</button><span style="display:flex;gap:8px"><button type="button" id="folderClose">Закрыть</button><button type="submit">Создать папку</button></span></footer>
+</form></dialog><dialog id="notificationDialog" style="max-width:520px;width:calc(100% - 24px);max-height:80vh;overflow:auto"><h3 style="margin-top:0">Уведомления</h3><div id="notificationList"></div><footer style="margin-top:12px"><button type="button" id="notificationMarkRead">Отметить всё прочитанным</button><button type="button" id="notificationClose">Закрыть</button></footer></dialog><div id="toast" hidden role="status"></div><script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getMessaging, getToken, onMessage, isSupported } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 import {
   getAuth, setPersistence, browserLocalPersistence,
   signInWithEmailAndPassword, onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
-  collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp
+  collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, where
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -172,6 +184,14 @@ const firebaseConfig = {
   messagingSenderId: "565924919299",
   appId: "1:565924919299:web:781d21e8a5eea89f5b7636"
 };
+// Cloudflare Worker для push-уведомлений 3Z
+const NOTIFICATION_WORKER_URL = "https://green-sun-4a78.3z-notifications.workers.dev";
+const boardNotifyTimes = new Map();
+// ВСТАВЬТЕ СЮДА ПУБЛИЧНЫЙ VAPID KEY ИЗ Firebase → Cloud Messaging → Web Push certificates
+const VAPID_PUBLIC_KEY = "BGLlp6XpXZTguy2T_WsjGt64kL7m4iS77UM3aMRksz7ujQmbbj1WtED5YQ3zPASI0MdFCKCx_rmNQZF2-qLyix8";
+let fcmMessaging = null;
+let fcmForegroundUnsubscribe = null;
+
 window.addEventListener('error',event=>{
   const errorBox=document.getElementById('error');
   if(errorBox) errorBox.textContent='Ошибка приложения: '+(event.message||'неизвестная ошибка');
@@ -185,11 +205,159 @@ window.addEventListener('unhandledrejection',event=>{
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+
+// Push отправляется отдельно: ошибка уведомления не мешает работе доски или чата.
+async function notifyWorker(type, payload = {}) {
+  if (!cloudUser) return;
+  try {
+    const idToken = await cloudUser.getIdToken();
+    const response = await fetch(NOTIFICATION_WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + idToken
+      },
+      body: JSON.stringify({ type, ...payload })
+    });
+    if (!response.ok) {
+      console.warn("3Z Worker:", response.status, await response.text().catch(() => ""));
+    }
+  } catch (err) {
+    console.warn("3Z push notification failed:", err);
+  }
+}
+
 let cloudUser = null, cloudEnabled = false, cloudApplying = false;
 let stopBoards = null, stopBoard = null, stopMessages = null;
 let cloudSaveTimer = null, cloudMessages = [], messageSnapshotReady=false;
+let appNotifications=[];
+const notificationReadKey=()=>`triz-notifications-read-${cloudUser?.uid||"guest"}`;
+function unreadNotificationCount(){return appNotifications.filter(n=>!n.read).length;}
+function renderNotifications(){const count=$("notificationCount"),n=unreadNotificationCount();count.textContent=String(n);count.style.display=n?"inline-block":"none";const list=$("notificationList");if(!list)return;list.replaceChildren();if(!appNotifications.length){const empty=document.createElement("p");empty.textContent="Пока нет новых уведомлений";list.append(empty);return;}for(const item of [...appNotifications].reverse()){const row=document.createElement("div");row.className="notice"+(item.read?"":" unread");const title=document.createElement("b");title.textContent=item.title;const body=document.createElement("div");body.textContent=item.body;const meta=document.createElement("small");meta.textContent=item.projectName+" · "+(item.when||"только что");row.append(title,body,meta);row.onclick=()=>{item.read=true;renderNotifications();$("notificationDialog").close();if(item.boardId&&projects.some(p=>p.id===item.boardId))switchProject(item.boardId);$("chat").style.display="flex";};list.append(row);}}
+function addAppNotification(item){appNotifications.push({...item,read:false,when:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})});if(appNotifications.length>100)appNotifications.shift();renderNotifications();}
 const memory=new Map(); let persistent=true; const store={getItem(k){try{return window.localStorage.getItem(k)}catch{persistent=false;return memory.get(k)??null}},setItem(k,v){try{window.localStorage.setItem(k,v)}catch(e){if(e.name==='QuotaExceededError')throw e;persistent=false;memory.set(k,String(v))}},removeItem(k){try{window.localStorage.removeItem(k)}catch{persistent=false;memory.delete(k)}}};
-const $=id=>document.getElementById(id), ns='http://www.w3.org/2000/svg', svg=$('svg'), world=$('world');
+
+function $(id){return document.getElementById(id)}
+const ns='http://www.w3.org/2000/svg', svg=$('svg'), world=$('world');
+$("notificationToggle").onclick=()=>{$("notificationDialog").showModal();renderNotifications();};$("notificationClose").onclick=()=>$("notificationDialog").close();$("notificationMarkRead").onclick=()=>{appNotifications.forEach(n=>n.read=true);renderNotifications();};
+
+
+// Folder management v1. This creates folder metadata only; it does not yet enforce
+// per-folder privacy for boards/messages. Keep current Firestore rules until the
+// coordinated ACL release is installed and tested.
+let folderDocs=[];
+let currentFolderId=null;
+let stopFoldersOwner=null, stopFoldersShared=null;
+const folderDialog=$('folderDialog');
+$('folderToggle').addEventListener('click',async()=>{
+  if(!cloudUser||!cloudEnabled){toast('Сначала войдите в аккаунт');return;}
+  currentFolderId=null;
+  await refreshFolderDialog();
+  folderDialog.showModal();
+});
+$('folderClose').onclick=()=>folderDialog.close();
+async function refreshFolderDialog(){
+  const list=$('folderList'), parent=$('folderParent');
+  list.replaceChildren();
+  parent.replaceChildren(new Option('Корневая папка',''));
+  const visible=folderDocs.filter(f=>f.ownerUid===cloudUser.uid||(Array.isArray(f.memberUids)&&f.memberUids.includes(cloudUser.uid)));
+  const current=currentFolderId?visible.find(f=>f.id===currentFolderId):null;
+  if(currentFolderId&&!current)currentFolderId=null;
+  const path=[];let cursor=currentFolderId;
+  while(cursor){const item=visible.find(f=>f.id===cursor);if(!item)break;path.unshift(item.name);cursor=item.parentId||null;}
+  $('folderPath').textContent=path.length?'Все папки / '+path.join(' / '):'Все папки';
+  $('folderUp').disabled=!currentFolderId;
+  for(const f of visible){
+    const indent=f.parentId?'↳ ':'';
+    parent.add(new Option(indent+f.name,f.id));
+  }
+  const children=visible.filter(f=>(f.parentId||null)===(currentFolderId||null));
+  for(const f of children){
+    const row=document.createElement('div');
+    row.style.cssText='padding:8px;border-bottom:1px solid #526174;display:flex;align-items:center;justify-content:space-between;gap:8px';
+    const open=document.createElement('button');
+    open.type='button';open.style.cssText='flex:1;text-align:left;background:transparent;border:0;color:#e9eff8;padding:6px;cursor:pointer';
+    open.textContent=(f.type==='shared'?'👥 ':'📁 ')+f.name+'  ›';
+    open.onclick=()=>{currentFolderId=f.id;refreshFolderDialog();};
+    const role=document.createElement('small');
+    role.textContent=f.ownerUid===cloudUser.uid?'Владелец':'Участник';
+    row.append(open,role);list.append(row);
+  }
+  const boardsHere=projects.filter(p=>(p.folderId||null)===(currentFolderId||null));
+  for(const board of boardsHere){
+    const row=document.createElement('div');
+    row.style.cssText='padding:8px;border-bottom:1px solid #526174;display:flex;align-items:center;gap:8px';
+    const open=document.createElement('button');
+    open.type='button';
+    open.style.cssText='flex:1;text-align:left;background:transparent;border:0;color:#e9eff8;padding:6px;cursor:pointer';
+    open.textContent='▧ '+board.name;
+    open.onclick=()=>{folderDialog.close();switchProject(board.id);};
+    const move=document.createElement('select');
+    move.title='Переместить доску в папку';
+    move.style.cssText='max-width:145px;font-size:12px;padding:5px';
+    move.add(new Option('Переместить…','__choose__'));
+    move.add(new Option('Все папки (корень)',''));
+    for(const f of visible){
+      const opt=new Option('📁 '+f.name,f.id);
+      move.add(opt);
+    }
+    move.value=board.folderId||'__choose__';
+    move.onchange=async()=>{
+      if(move.value==='__choose__')return;
+      const nextFolderId=move.value||null;
+      try{
+        await updateDoc(doc(db,'boards',board.id),{folderId:nextFolderId});
+        const local=projects.find(p=>p.id===board.id);
+        if(local)local.folderId=nextFolderId;
+        persistProjectsLocal();
+        toast(nextFolderId?'Доска перемещена в папку':'Доска перемещена в корень');
+        refreshFolderDialog();
+      }catch(err){
+        console.error(err);
+        toast('Не удалось переместить доску: '+(err.code||err.message));
+        move.value=board.folderId||'__choose__';
+      }
+    };
+    row.append(open,move);
+    list.append(row);
+  }
+  if(!children.length&&!boardsHere.length){
+    const e=document.createElement('p');
+    e.style.color='#b9c8da';
+    e.textContent=currentFolderId?'В этой папке пока нет досок или вложенных папок.':'Папок и досок пока нет.';
+    list.append(e);
+  }
+}
+$('folderUp').onclick=()=>{const current=folderDocs.find(f=>f.id===currentFolderId);currentFolderId=current?.parentId||null;refreshFolderDialog();};
+function startFolderSync(){
+  if(stopFoldersOwner)stopFoldersOwner();
+  if(stopFoldersShared)stopFoldersShared();
+  if(!cloudEnabled||!cloudUser)return;
+  const ownerQ=query(collection(db,'folders'),where('ownerUid','==',cloudUser.uid));
+  const sharedQ=query(collection(db,'folders'),where('memberUids','array-contains',cloudUser.uid));
+  let ownerRows=[],sharedRows=[];
+  const merge=()=>{const map=new Map([...ownerRows,...sharedRows].map(f=>[f.id,f]));folderDocs=[...map.values()];if(folderDialog.open)refreshFolderDialog();};
+  stopFoldersOwner=onSnapshot(ownerQ,s=>{ownerRows=s.docs.map(d=>({id:d.id,...d.data()}));merge();},e=>{console.error(e);toast('Не удалось загрузить личные папки: '+e.message);});
+  stopFoldersShared=onSnapshot(sharedQ,s=>{sharedRows=s.docs.map(d=>({id:d.id,...d.data()}));merge();},e=>{console.error(e);toast('Не удалось загрузить общие папки: '+e.message);});
+}
+$('folderForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!cloudUser||!cloudEnabled)return toast('Нет подключения к Firebase');
+  const name=$('folderName').value.trim(),type=$('folderType').value,parentId=$('folderParent').value||null;
+  const memberUids=[...new Set($('folderMembers').value.split(',').map(v=>v.trim()).filter(Boolean))];
+  if(!name)return;
+  if(type==='personal'&&memberUids.length)return toast('Для личной папки не указывайте участников');
+  if(type==='shared'&&!memberUids.includes(cloudUser.uid))memberUids.push(cloudUser.uid);
+  if(parentId&&!folderDocs.some(f=>f.id===parentId))return toast('Родительская папка не найдена или недоступна');
+  try{
+    await addDoc(collection(db,'folders'),{name,type,ownerUid:cloudUser.uid,memberUids,parentId,createdAt:serverTimestamp(),schemaVersion:1});
+    $('folderName').value='';$('folderMembers').value='';
+    toast('Папка создана');
+    currentFolderId=parentId||null;
+    await refreshFolderDialog();
+  }catch(err){console.error(err);toast('Не удалось создать папку: '+(err.code||err.message));}
+});
+
 // Звук включается отдельно на каждом устройстве после нажатия пользователя.
 let soundEnabled=store.getItem('triz-sound-enabled')==='1';
 let soundActivated=false;
@@ -289,6 +457,16 @@ $('pattern').value=saved.pattern||'dots';$('material').value=saved.material||'#f
           name:boardName,
           pattern:savePattern, material:saveMaterial, archived:false
         },{merge:true});
+
+        // Не чаще одного push об изменении доски за 30 секунд.
+        const notifyNow = Date.now();
+        if (notifyNow - (boardNotifyTimes.get(saveBoardId) || 0) > 30000) {
+          boardNotifyTimes.set(saveBoardId, notifyNow);
+          notifyWorker('board', {
+            boardId: saveBoardId,
+            projectName: boardName
+          });
+        }
         if(active===saveBoardId)$('status').textContent='☁ Сохранено в облако';
       }catch(err){console.error(err);if(active===saveBoardId)$('status').textContent='Ошибка облачного сохранения';toast('Не удалось сохранить в облако: '+(err.code||err.message));}
     },350);
@@ -434,9 +612,39 @@ $('send').onsubmit=async e=>{
       text:JSON.stringify({boardId:active,text}),
       created:serverTimestamp()
     });
+    const projectName = (projects.find(p=>p.id===active)||{}).name || 'Проект';
+    notifyWorker('chat', {
+      boardId: active,
+      projectName,
+      senderName: name,
+      message: text
+    });
     $('msg').value='';
   }catch(err){toast('Не удалось отправить сообщение: '+(err.code||err.message));}
-};$('notify').onclick=async()=>{if(!('Notification'in window)){toast('Браузер не поддерживает уведомления');return}try{let p=await Notification.requestPermission();toast(p==='granted'?'Уведомления разрешены. Для доставки при полностью закрытом приложении потребуется Web Push (FCM)':'Уведомления не разрешены')}catch{toast('Для уведомлений нужен поддерживаемый браузер и HTTPS')}};function startBoardSync(){
+};async function enablePushNotifications(){
+  try{
+    if(!cloudUser){toast('Сначала войдите в TRIZ BCI');return;}
+    if(!('serviceWorker' in navigator) || !('Notification' in window)){toast('Этот браузер не поддерживает Web Push');return;}
+    if(!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.startsWith('ВСТАВЬТЕ_')){toast('Сначала вставьте публичный VAPID-ключ в index.html');return;}
+    if(!(await isSupported())){toast('FCM Web Push не поддерживается этим браузером');return;}
+    const permission=await Notification.requestPermission();
+    if(permission!=='granted'){toast('Разрешение на уведомления не выдано');return;}
+    const registration=await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+    fcmMessaging=getMessaging(firebaseApp);
+    const token=await getToken(fcmMessaging,{vapidKey:VAPID_PUBLIC_KEY,serviceWorkerRegistration:registration});
+    if(!token){toast('Firebase не выдал токен устройства');return;}
+    await setDoc(doc(db,'fcmTokens',cloudUser.uid+'_'+token.slice(-24)),{uid:cloudUser.uid,token,createdAt:serverTimestamp(),platform:'web'}, {merge:true});
+    if(fcmForegroundUnsubscribe)fcmForegroundUnsubscribe();
+    fcmForegroundUnsubscribe=onMessage(fcmMessaging,payload=>{
+      const title=payload.notification?.title||'TRIZ BCI';
+      const body=payload.notification?.body||'Новое событие в проекте';
+      addAppNotification({title,body,projectName:payload.data?.projectName||'TRIZ BCI',boardId:payload.data?.boardId||null});
+      playSoundAlert('message');
+    });
+    toast('Push-уведомления включены на этом устройстве');
+  }catch(err){console.error('FCM setup failed',err);toast('Не удалось включить push: '+(err.code||err.message));}
+}
+$('notify').onclick=enablePushNotifications;function startBoardSync(){
   if(stopBoard){stopBoard();stopBoard=null;}
   boardSnapshotReady=false;
   lastBoardSnapshotValue=null;
@@ -452,7 +660,7 @@ $('send').onsubmit=async e=>{
       const incomingValue=snap.data().value||'{}';
       if(boardSnapshotReady && incomingValue!==lastBoardSnapshotValue){
         if(ownBoardValues.has(incomingValue))ownBoardValues.delete(incomingValue);
-        else playSoundAlert('board');
+        else {playSoundAlert('board');addAppNotification({title:'Изменена доска',body:'Участник обновил содержимое доски',projectName:(projects.find(p=>p.id===active)||{}).name||'Проект',boardId:active});}
       }
       lastBoardSnapshotValue=incomingValue;
       boardSnapshotReady=true;
@@ -484,6 +692,8 @@ function startMessageSync(){
         const m=parsed.find(x=>x.id===change.doc.id);
         if(!m||m.uid===cloudUser?.uid||m.boardId!==active)continue;
         playSoundAlert('message');
+        const projectName=(projects.find(p=>p.id===m.boardId)||{}).name||'Проект';
+        addAppNotification({title:'Новое сообщение · '+(m.name||'Участник'),body:m.text,projectName,boardId:m.boardId});
         if('Notification'in window&&Notification.permission==='granted'){
           try{
             const n=new Notification('Новое сообщение · '+(m.name||'Участник'),{
@@ -505,15 +715,23 @@ function startCloud(){
   stopBoards=onSnapshot(collection(db,'boards'),async snap=>{
     const incoming=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.archived!==true);
     if(!incoming.length){
-      for(const p of projects){
-        await setDoc(doc(db,'boards',p.id),{name:p.name,pattern:$('pattern').value,material:$('material').value,archived:false},{merge:true});
-      }
-      const state={data,pattern:$('pattern').value,material:$('material').value};
-      const value=JSON.stringify(state);
-      if(value.length<=800000)await setDoc(doc(db,'objects',active),{value},{merge:true});
+      // Пустая облачная коллекция означает действительно пустое рабочее пространство.
+      // Не восстанавливаем удалённые доски из localStorage.
+      projects=[];
+      active='';
+      data=[];
+      try{
+        store.setItem(indexKey,JSON.stringify([]));
+        store.removeItem('triz-active-v2');
+      }catch(err){console.warn('Не удалось очистить локальный список досок',err);}
+      projectMenu();
+      render();
+      $('status').textContent='☁ Нет досок — создайте новую';
+      if(folderDialog.open)refreshFolderDialog();
+      showChat();
       return;
     }
-    projects=incoming.map(p=>({id:p.id,name:p.name||'Без названия'}));
+    projects=incoming.map(p=>({id:p.id,name:p.name||'Без названия',folderId:p.folderId||null}));
     if(!projects.some(p=>p.id===active)){
       active=projects[0].id;
       key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;
@@ -521,6 +739,7 @@ function startCloud(){
     }
     projectMenu();
     persistProjectsLocal();
+    if(folderDialog.open)refreshFolderDialog();
     startBoardSync();showChat();
   },err=>{console.error(err);toast('Ошибка загрузки списка досок: '+err.message);});
   startMessageSync();
@@ -531,23 +750,27 @@ function persistProjectsLocal(){
   persistProjectsLocal();projectMenu();
   if(cloudEnabled&&cloudUser){
     const p=projects.find(p=>p.id===active);
-    if(p)setDoc(doc(db,'boards',active),{name:p.name,pattern:$('pattern').value,material:$('material').value,archived:false},{merge:true}).catch(err=>toast('Не удалось сохранить название доски: '+err.message));
+    if(p)setDoc(doc(db,'boards',active),{name:p.name,folderId:p.folderId||null,pattern:$('pattern').value,material:$('material').value,archived:false},{merge:true}).catch(err=>toast('Не удалось сохранить название доски: '+err.message));
   }
 }function switchProject(next,keep=true){if(drag)return;finishEditor(false);if(keep)save();active=next;key=active==='legacy'?'triz-board-v1':'triz-board-v2-'+active;chatKey=active==='legacy'?'triz-chat':'triz-chat-v2-'+active;let s=load();data=s.data||[];restoreCamera();$('pattern').value=s.pattern||'dots';$('material').value=s.material||'#fafafa';history=[];future=[];selected=null;linkStart=null; $('msg').value='';persistProjects();render();showChat();if(cloudEnabled)startBoardSync()}$('projects').onchange=()=>switchProject($('projects').value);
-$('newProject').onclick=async()=>{
+async function createBoardInFolder(folderId=null){
   const name=await ask('Название новой доски','Новая доска');
   if(!name?.trim())return;
   if(!cloudEnabled||!cloudUser){
-    toast('Для создания общей облачной доски сначала войдите в аккаунт');
+    toast('Для создания облачной доски сначала войдите в аккаунт');
+    return;
+  }
+  if(folderId&&!folderDocs.some(f=>f.id===folderId)){
+    toast('Папка больше не доступна. Обновите список папок.');
     return;
   }
   try{
-    // Сначала сохраняем текущую доску, затем создаём два новых независимых документа.
     save();
     const boardId=(crypto.randomUUID?crypto.randomUUID():id()).replaceAll('/','-');
-    const board={id:boardId,name:name.trim()};
+    const board={id:boardId,name:name.trim(),folderId:folderId||null};
     await setDoc(doc(db,'boards',boardId),{
       name:board.name,
+      folderId:board.folderId,
       pattern:'dots',
       material:'#fafafa',
       archived:false
@@ -560,7 +783,6 @@ $('newProject').onclick=async()=>{
     chatKey='triz-chat-v2-'+active;
     data=[];
     cam={x:0,y:0,z:1};
-    // У новой доски собственная камера; прежний масштаб другой доски не переносится.
     store.removeItem(cameraKey());
     restoreCamera();
     $('pattern').value='dots';
@@ -572,12 +794,16 @@ $('newProject').onclick=async()=>{
     render();
     showChat();
     startBoardSync();
-    toast('Создана отдельная пустая доска: '+board.name);
+    if(folderDialog.open)folderDialog.close();
+    toast(folderId?'Доска создана внутри папки: '+board.name:'Создана отдельная пустая доска: '+board.name);
   }catch(err){
     console.error('Board creation failed',err);
     toast('Не удалось создать доску: '+(err.code||err.message));
   }
-};$('renameProject').onclick=async()=>{let p=projects.find(p=>p.id===active),name=await ask('Название доски',p.name);if(name?.trim()){p.name=name.trim();persistProjects()}};$('deleteProject').onclick=async()=>{
+}
+$('newProject').onclick=()=>createBoardInFolder(null);
+$('folderNewBoard').onclick=()=>createBoardInFolder(currentFolderId);
+$('renameProject').onclick=async()=>{let p=projects.find(p=>p.id===active),name=await ask('Название доски',p.name);if(name?.trim()){p.name=name.trim();persistProjects()}};$('deleteProject').onclick=async()=>{
   if(projects.length===1){toast('Оставьте хотя бы одну доску');return;}
   if(!await ask('Архивировать эту доску?'))return;
   try{if(cloudEnabled)await updateDoc(doc(db,'boards',active),{archived:true});}catch(err){toast('Не удалось архивировать доску: '+err.message);return;}
@@ -594,6 +820,8 @@ onAuthStateChanged(auth,async user=>{
     if(stopBoards){stopBoards();stopBoards=null;}
     if(stopBoard){stopBoard();stopBoard=null;}
     if(stopMessages){stopMessages();stopMessages=null;}
+    if(stopFoldersOwner){stopFoldersOwner();stopFoldersOwner=null;}
+    if(stopFoldersShared){stopFoldersShared();stopFoldersShared=null;}
     $('gate').style.display='grid';
     $('status').textContent='Не выполнен вход';
     return;
@@ -610,6 +838,7 @@ onAuthStateChanged(auth,async user=>{
     $('status').textContent='Подключение к облаку…';
     $('error').textContent='';
     startCloud();
+    startFolderSync();
   }catch(err){
     console.error(err);
     $('gate').style.display='grid';
