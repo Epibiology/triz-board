@@ -208,7 +208,14 @@ const db = getFirestore(firebaseApp);
 
 // Push отправляется отдельно: ошибка уведомления не мешает работе доски или чата.
 async function notifyWorker(type, payload = {}) {
-  if (!cloudUser) return;
+  console.log("3Z PUSH CHECK:", type, "User:", !!cloudUser);
+
+if (!cloudUser) {
+  console.warn("3Z PUSH STOP: пользователь не авторизован");
+  return;
+}
+
+console.log("3Z PUSH: отправляем запрос", NOTIFICATION_WORKER_URL);
   try {
     const idToken = await cloudUser.getIdToken();
     const response = await fetch(NOTIFICATION_WORKER_URL, {
